@@ -1,0 +1,1 @@
+**This is support module for background work with BLE tag**
