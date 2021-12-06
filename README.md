@@ -1,4 +1,5 @@
 **This is LIB - BACKBLELogger**
+[![Release](https://jitpack.io/v/User/Repo.svg)](https://jitpack.io/#arstagaev/SIPlatform)
 
 Add it in your root build.gradle at the end of repositories:
 
