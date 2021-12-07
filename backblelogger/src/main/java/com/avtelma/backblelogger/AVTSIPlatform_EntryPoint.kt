@@ -19,9 +19,7 @@ class AVTSIPlatform_EntryPoint {
         CONNECTING_STYLE = connectingStyle
         //InputSession.RECORD_ACTIVITY = recActivity
     }
-    fun setupSec(inpDevice : BluetoothDevice ,){
-        SUPER_BLE_DEVICE = inpDevice
-    }
+
 
 
 }

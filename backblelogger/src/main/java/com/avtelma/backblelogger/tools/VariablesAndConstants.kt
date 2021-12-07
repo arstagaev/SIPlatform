@@ -1,11 +1,13 @@
 package com.avtelma.backblelogger.tools
 
 import android.bluetooth.BluetoothDevice
+import android.bluetooth.le.ScanResult
+import com.avtelma.backblelogger.enum.Actions
 import com.avtelma.backblelogger.enum.ConnectingStyle
-import com.avtelma.backblelogger.storage.PreferenceMaestro
-import com.avtelma.backblelogger.enum.CurrentStateOfRecording
+import com.avtelma.backblelogger.enum.CurrentStateOfService
 import com.avtelma.backblelogger.enum.TypeOfInputLog
 import com.avtelma.backblelogger.ui.FourthlyDataContainerForChartsXYZ2
+//import no.nordicsemi.android.support.v18.scanner.ScanResult
 
 class VariablesAndConstants {
     companion object {
@@ -17,9 +19,11 @@ class VariablesAndConstants {
 
         // we connect in service by this bluetooth devices:
         var SUPER_BLE_DEVICE       : BluetoothDevice? = null
+        var LIST_OF_FOUND_DEVICES : MutableList<BluetoothDevice> = mutableListOf()
         //var FORBACKGRND_BLE_DEVICE : BluetoothDevice? = null
         //
-        var CURRENT_STATE_OF_RECORDING = CurrentStateOfRecording.NO_CONNECTED
+        var ACTION_NOW = Actions.START
+        var CURRENT_STATE_OF_SERVICE = CurrentStateOfService.NO_CONNECTED
         var CONNECTING_STYLE = ConnectingStyle.AUTO_BY_BOND  // need migrate to entry point FIXME
 
         var IS_MANUAL_LOG_RECORD = false

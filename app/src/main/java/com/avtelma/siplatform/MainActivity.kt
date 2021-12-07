@@ -13,6 +13,7 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.os.Environment
 import android.provider.DocumentsContract
 import android.util.Log
@@ -53,10 +54,10 @@ import com.avtelma.backblelogger.AVTSIPlatform_EntryPoint
 import com.avtelma.backblelogger.enum.Actions
 import com.avtelma.backblelogger.enum.ConnectingStyle
 import com.avtelma.backblelogger.service.EndlessService
+import com.avtelma.backblelogger.tools.VariablesAndConstants
+import com.avtelma.backblelogger.tools.VariablesAndConstants.Companion.LIST_OF_FOUND_DEVICES
+import com.avtelma.backblelogger.tools.VariablesAndConstants.Companion.SUPER_BLE_DEVICE
 import com.avtelma.backblelogger.tools.log
-import com.avtelma.siplatform.MainConstants.Companion.SCAN_DEVICES
-import com.avtelma.siplatform.ble.ConnectionEventListener
-import com.avtelma.siplatform.ble.ConnectionManager
 import timber.log.Timber
 
 // or just
@@ -72,9 +73,6 @@ class MainActivity : ComponentActivity() {
     val bluetoothAdapter: BluetoothAdapter? = BluetoothAdapter.getDefaultAdapter()
     var REQUEST_ENABLE_BT = 1
 
-    private val bleScanner by lazy {
-        bluetoothAdapter?.bluetoothLeScanner
-    }
     private val isLocationPermissionGranted
         get() = this.hasPermission(Manifest.permission.ACCESS_FINE_LOCATION)
 
@@ -86,15 +84,33 @@ class MainActivity : ComponentActivity() {
                 PackageManager.PERMISSION_GRANTED
     }
 
-    private val scanSettings = ScanSettings.Builder()
-        .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
-        .build()
-
-    private var isScanning = false
-        set(value) { field = value }
-
-    private val scanResults = mutableListOf<ScanResult>()
+//    private val scanResults = mutableListOf<ScanResult>()
     var permiss = mutableStateOf(true)
+
+    var timer : CountDownTimer = object : CountDownTimer(1000000,3000){
+        override fun onTick(p0: Long) {
+            Timber.i("zzz !!!")
+            Timber.i("zzz ${LIST_OF_FOUND_DEVICES?.joinToString()}")
+            if (VariablesAndConstants.LIST_OF_FOUND_DEVICES != null ){
+
+
+                Timber.i("zzz ${VariablesAndConstants.LIST_OF_FOUND_DEVICES?.toString()}  name super: ${SUPER_BLE_DEVICE?.name}")
+
+                for (i in ArrayList( LIST_OF_FOUND_DEVICES)) {
+
+                    if (i.name != null && i.name.toString().contains("itelma",true) == true) {
+                        SUPER_BLE_DEVICE = i
+                        Timber.i("I founded!!!  !!!")
+                    }
+
+                }
+            }
+        }
+
+        override fun onFinish() {
+        }
+
+    }
 
     @OptIn(ExperimentalPermissionsApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -113,6 +129,7 @@ class MainActivity : ComponentActivity() {
         }else {
             Log.i("zzz","checkStoragePermissionApi19 ${checkStoragePermissionApi19(this)}")
         }
+        timer.start()
 //        try {
 //
 //            appendText("wow.txt","777")
@@ -133,7 +150,7 @@ class MainActivity : ComponentActivity() {
                 startActivityForResult(enableBtIntent!!, REQUEST_ENABLE_BT)
             }
         }
-        ConnectionManager.registerListener(connectionEventListener)
+
 
         AVTSIPlatform_EntryPoint().setup(ConnectingStyle.MANUAL,)
         runOnUiThread {
@@ -167,10 +184,7 @@ class MainActivity : ComponentActivity() {
                 // A surface container using the 'background' color from the theme
                 Log.i("zzz","BLE: ${isPermissionBleGranted} ")
                 if (!visibleOfPermissions){
-                    if (!isScanning) {
-                        Log.i("zzz","BLE: ${isPermissionBleGranted}")
-                        startBleScan()
-                    }
+
                 }
                 AnimatedVisibility(visible = !visibleOfPermissions) {
 
@@ -192,21 +206,22 @@ class MainActivity : ComponentActivity() {
                         }
 
                         Button(onClick = {
-                            for (i in SCAN_DEVICES) {
 
-                                if (i.device.name != null && i.device.name.toString().contains("itelma",true) == true){
-                                    AVTSIPlatform_EntryPoint().setupSec(i.device)
-                                    autoConnectService()
-                                }
-                            }
-
+                            autoConnectService()
 
                         }) {
                             Text(text = "Start service",color = androidx.compose.ui.graphics.Color.Magenta)
                         }
+
+                        Button(onClick = {
+                            requestLocationPermission()
+                            autoConnectService(6)
+
+                        }) {
+                            Text(text = "Start service with Force isLocationPermissionGranted: ${isLocationPermissionGranted}",color = androidx.compose.ui.graphics.Color.Magenta)
+                        }
                     }
                 }
-
             }
         }
     }
@@ -220,7 +235,7 @@ class MainActivity : ComponentActivity() {
     override fun onPause() {
         super.onPause()
 
-        stopBleScan()
+
     }
 
 
@@ -280,36 +295,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun startBleScan() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !isLocationPermissionGranted) {
-            requestLocationPermission()
-        } else {
-            scanResults.clear()
 
-            bleScanner?.startScan(null, scanSettings, scanCallback)
-            isScanning = true
-        }
-    }
-
-    private fun stopBleScan() {
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.BLUETOOTH_SCAN
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return
-        }
-        bleScanner?.stopScan(scanCallback)
-        isScanning = false
-
-    }
 
     private fun requestLocationPermission() {
         if (isLocationPermissionGranted) {
@@ -328,59 +314,9 @@ class MainActivity : ComponentActivity() {
 
 
 
-    /*******************************************
-     * Callback bodies
-     *******************************************/
 
-    private val scanCallback = object : ScanCallback() {
-        @SuppressLint("MissingPermission")
-        override fun onScanResult(callbackType: Int, result: ScanResult) {
-            val indexQuery = scanResults.indexOfFirst { it.device.address == result.device.address }
-            if (indexQuery != -1) { // A scan result already exists with the same address
-                scanResults[indexQuery] = result
-                //scanResultAdapter.notifyItemChanged(indexQuery)
-                scanResults[0].scanRecord?.manufacturerSpecificData
-            } else {
-                with(result.device) {
-                    Timber.i("Found BLE device! Name: ${result.device.name ?: "Unnamed"}, address: $address")
-                }
-                scanResults.add(result)
 
-                SCAN_DEVICES = scanResults
 
-                //scanResultAdapter.notifyItemInserted(scanResults.size - 1)
-            }
-        }
-
-        override fun onScanFailed(errorCode: Int) {
-            stopBleScan()
-            startBleScan()
-            Timber.e("onScanFailed: code $errorCode")
-        }
-    }
-
-    private val connectionEventListener by lazy {
-        ConnectionEventListener().apply {
-            onConnectionSetupComplete = { gatt ->
-                Toast.makeText(applicationContext,"onConnectionSetupComplete",Toast.LENGTH_LONG).show()
-//                Intent(this@MainActivity, BleOperationsActivity::class.java).also {
-//                    it.putExtra(BluetoothDevice.EXTRA_DEVICE, gatt.device)
-//                    startActivity(it)
-//                }
-//                ConnectionManager.unregisterListener(this)
-            }
-            onDisconnect = {
-                runOnUiThread {
-                    Toast.makeText(applicationContext,"onDisconnect",Toast.LENGTH_LONG).show()
-//                    alert {
-//                        title = "Disconnected"
-//                        message = "Disconnected or unable to connect to device."
-//                        positiveButton("OK") {}
-//                    }.show()
-                }
-            }
-        }
-    }
 
     fun commonDocumentDirPath(FolderName: String): File? {
         var dir: File? = null
@@ -506,6 +442,24 @@ class MainActivity : ComponentActivity() {
     fun autoConnectService() {
         Intent(this, EndlessService::class.java).also {
             it.action = Actions.START.name
+            it.putExtra("CS",6)
+
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                log("Starting the service in >=26 Mode")
+                startForegroundService(it)
+                return
+            }
+            log("Starting the service in < 26 Mode")
+            startService(it)
+        }
+    }
+
+    fun autoConnectService(code:  Int) {
+        Intent(this, EndlessService::class.java).also {
+            it.action = Actions.MISC.name
+            it.putExtra("CS",code)
+
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 log("Starting the service in >=26 Mode")

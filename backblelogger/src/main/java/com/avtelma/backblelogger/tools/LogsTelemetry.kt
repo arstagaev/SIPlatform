@@ -10,7 +10,7 @@ import android.widget.Toast
 import com.avtelma.backblelogger.R
 
 fun log(msg : String){
-    Log.i("ccc","$msg")
+    Log.i("ccc","ENDLESS SERVICE: $msg")
 }
 
 fun toastShow(msg: String, colorText : Int , ctx : Context){

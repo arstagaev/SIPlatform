@@ -19,7 +19,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.avtelma.backblelogger.AVTSIPlatform_EntryPoint
-import com.avtelma.backblelogger.enum.CurrentStateOfRecording
+import com.avtelma.backblelogger.enum.CurrentStateOfService
 import com.avtelma.backblelogger.nordicble.BaseNordicBleManager
 
 import com.avtelma.backblelogger.soundplayer.WhatIMustSay
@@ -34,10 +34,9 @@ import com.avtelma.backblelogger.tools.InputSession.Companion.RECORD_ACTIVITY
 import com.avtelma.backblelogger.tools.VariablesAndConstants.Companion.CURRENT_SPEED
 //import com.avtelma.backblelogger.tools.VariablesAndConstants.Companion.FORBACKGRND_BLE_DEVICE
 import com.avtelma.backblelogger.tools.VariablesAndConstants.Companion.GPS_LOG
-import com.avtelma.backblelogger.tools.VariablesAndConstants.Companion.NAME_OF_TABLET
 import com.avtelma.backblelogger.tools.VariablesAndConstants.Companion.SESSION_NAME_TIME_raw
 import com.avtelma.backblelogger.tools.VariablesAndConstants.Companion.SESSION_NAME_TIME_xyz
-import com.avtelma.backblelogger.tools.VariablesAndConstants.Companion.CURRENT_STATE_OF_RECORDING
+import com.avtelma.backblelogger.tools.VariablesAndConstants.Companion.CURRENT_STATE_OF_SERVICE
 
 import kotlinx.coroutines.*
 
@@ -52,6 +51,8 @@ import com.avtelma.backblelogger.enum.ConnectingStyle
 import com.avtelma.backblelogger.tools.VariablesAndConstants.Companion.CONNECTING_STYLE
 import com.avtelma.backblelogger.tools.VariablesAndConstants.Companion.SUPER_BLE_DEVICE
 import com.avtelma.backblelogger.tools.*
+import com.avtelma.backblelogger.tools.VariablesAndConstants.Companion.ACTION_NOW
+import com.avtelma.backblelogger.tools.VariablesAndConstants.Companion.LIST_OF_FOUND_DEVICES
 
 
 /**
@@ -86,17 +87,32 @@ class EndlessService : Service() {
 
         if (intent != null) {
             val action = intent.action
+
+
             log("using an intent with action $action")
             when (action) {
-                Actions.START.name ->  startService()
+                Actions.START.name ->  { startService() }
                 Actions.STOP.name ->   stopService()
                 Actions.UNBOND.name -> unBondDevice()  // include unbond + stopService
+                Actions.NEUTRAL_CONNECTED.name ->{
+                    ACTION_NOW = Actions.NEUTRAL_CONNECTED
+                    //CURRENT_STATE_OF_SERVICE = CurrentStateOfService.WAIT_COMMAND_UNSUBS
+                    unSubscribe()
+                }
+                Actions.MISC.name -> {
+                    //startService()
+                    Log.i("zzz","zzz ${intent.extras?.getInt("CS")}")
+                    when(intent.extras?.getInt("CS")) { // Command to Service
+
+                        6 -> { startScan() }
+                        7 -> { stopScan()  }
+
+                    }
+                }
                 else -> log("This should never happen. No action in the received intent")
             }
         } else {
-            log(
-                "with a null intent. It has been probably restarted by the system."
-            )
+            log("with a null intent. It has been probably restarted by the system.")
         }
         // by returning this we make sure the service is restarted if the system kills the service
         return START_STICKY
@@ -104,7 +120,6 @@ class EndlessService : Service() {
 
 
     var isScanning : Boolean = false
-
     private fun startScan() {
         if (isScanning)
             return
@@ -161,7 +176,15 @@ class EndlessService : Service() {
            if (results.isEmpty())
                return
 
-           Log.d("ccc","xxx resultx: "+results.toString())
+           for (i in ArrayList( results)) {
+
+               if (i.device.name != null && i.device.name.toString().contains("itelma",true) == true) {
+                   LIST_OF_FOUND_DEVICES?.add(i.device)
+               }
+
+           }
+           //LIST_OF_FOUND_DEVICES = results
+           Log.d("ccc","xxx resultx: "+LIST_OF_FOUND_DEVICES.toString())
            for(result in results) {
                Log.d("ccc","xxx result: "+result.device.name)
            }
@@ -223,17 +246,17 @@ class EndlessService : Service() {
 
                 Log.i("ccc","ccc ${bytesX.size}")
 
-                if (CURRENT_STATE_OF_RECORDING == CurrentStateOfRecording.CONNECTED_BUT_NO_RECORDING && bytesX.size > 240){
+                if (CURRENT_STATE_OF_SERVICE == CurrentStateOfService.CONNECTED_BUT_NO_RECORDING && bytesX.size > 240){
 
                     SoundPlay().playx(this@EndlessService, WhatIMustSay.START_REC)
 
                 }
 
                 //addLogsGPS(SESSION_NAME_TIME_gps,)
-                CURRENT_STATE_OF_RECORDING = CurrentStateOfRecording.RECORDING
+                CURRENT_STATE_OF_SERVICE = CurrentStateOfService.RECORDING
 
             }else{
-                CURRENT_STATE_OF_RECORDING = CurrentStateOfRecording.CONNECTED_BUT_NO_RECORDING
+                CURRENT_STATE_OF_SERVICE = CurrentStateOfService.CONNECTED_BUT_NO_RECORDING
                 log("data notiff is null!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1")
             }
 
@@ -249,7 +272,7 @@ class EndlessService : Service() {
         override fun onDeviceDisconnected(device: BluetoothDevice) {
             SoundPlay().playx(this@EndlessService, WhatIMustSay.OFF)
             Log.d("ccc", "disconnected")
-            CURRENT_STATE_OF_RECORDING = CurrentStateOfRecording.NO_CONNECTED
+            CURRENT_STATE_OF_SERVICE = CurrentStateOfService.NO_CONNECTED
             sendMessage("#############disconnected:  "+device.name)
 
         }
@@ -258,7 +281,7 @@ class EndlessService : Service() {
             Log.d("ccc", "Connected")
             SoundPlay().playx(this@EndlessService, WhatIMustSay.ON)
             sendMessage("#############connected:  "+device.name)
-            CURRENT_STATE_OF_RECORDING = CurrentStateOfRecording.CONNECTED_BUT_NO_RECORDING
+            CURRENT_STATE_OF_SERVICE = CurrentStateOfService.CONNECTED_BUT_NO_RECORDING
 
             toastShow("successful connected ${device.name}",Color.GREEN,this@EndlessService)
 
@@ -287,7 +310,7 @@ class EndlessService : Service() {
         override fun onLinkLossOccurred(device: BluetoothDevice) {
             // nothing to do
             SoundPlay().playx(this@EndlessService, WhatIMustSay.ERROR)
-            CURRENT_STATE_OF_RECORDING= CurrentStateOfRecording.LOSS_CONNECTION_AND_WAIT_NEW
+            CURRENT_STATE_OF_SERVICE= CurrentStateOfService.LOSS_CONNECTION_AND_WAIT_NEW
             toastShow("loss connection of: ${device.name}!!!",Color.RED,this@EndlessService)
         }
 
@@ -312,13 +335,13 @@ class EndlessService : Service() {
             Log.e("ccc", "ERORR BLE " + message)
             erroredDevices.add(device)
             SoundPlay().playx(this@EndlessService, WhatIMustSay.ERROR)
-            CURRENT_STATE_OF_RECORDING = CurrentStateOfRecording.NO_CONNECTED  //may delete not sure
+            CURRENT_STATE_OF_SERVICE = CurrentStateOfService.NO_CONNECTED  //may delete not sure
             toastShow("Error connect ${device.name} code:${message}",Color.RED,this@EndlessService)
         }
 
         override fun onDeviceConnecting(device: BluetoothDevice) {
             Log.d("ccc", "Connecting")
-            CURRENT_STATE_OF_RECORDING = CurrentStateOfRecording.CONNECTING
+            CURRENT_STATE_OF_SERVICE = CurrentStateOfService.CONNECTING
 //            if (device.name != "SL004002"){
 //
 //            }
@@ -361,13 +384,7 @@ class EndlessService : Service() {
     private var btAdapter = BluetoothAdapter.getDefaultAdapter()
     private var alreadyBondedDevices = btAdapter.bondedDevices
     private lateinit var manager : BluetoothManager
-//    private val ENABLE_BLUETOOTH_REQUEST_CODE = 1
-//    private fun promptEnableBluetooth() {
-//        if (!btAdapter.isEnabled) {
-//            val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-//            startActivityForResult(enableBtIntent, ENABLE_BLUETOOTH_REQUEST_CODE)
-//        }
-//    }
+
     val noFilteredDevices : MutableList<String> = ArrayList()
     val filteredDevices :   MutableList<BluetoothDevice> = ArrayList()
     val erroredDevices = mutableSetOf<BluetoothDevice>()
@@ -377,6 +394,7 @@ class EndlessService : Service() {
 
 
         if (isServiceStarted) return
+        //stopScan()
 
         log("Starting the foreground service task")
 
@@ -422,118 +440,85 @@ class EndlessService : Service() {
                      * Choose something one
                      */
                     //var gattDevices = manager.getConnectedDevices(BluetoothProfile.GATT)
-                    Log.w("ccc"," current state of rec: ${CURRENT_STATE_OF_RECORDING.name}  style: ${CONNECTING_STYLE.name}" )
+                    Log.w("ccc"," current state of rec: ${CURRENT_STATE_OF_SERVICE.name} action: ${ACTION_NOW.name} style: ${CONNECTING_STYLE.name} " )
+                    when(ACTION_NOW) {
+                        Actions.START, Actions.STOP , Actions.MISC -> {
+                            if (   CURRENT_STATE_OF_SERVICE == CurrentStateOfService.NO_CONNECTED
+                                || CURRENT_STATE_OF_SERVICE == CurrentStateOfService.CONNECTING
+                                || CURRENT_STATE_OF_SERVICE == CurrentStateOfService.LOSS_CONNECTION_AND_WAIT_NEW){
+                                time = 0
 
-                    if (   CURRENT_STATE_OF_RECORDING == CurrentStateOfRecording.NO_CONNECTED
-                        || CURRENT_STATE_OF_RECORDING == CurrentStateOfRecording.CONNECTING
-                        || CURRENT_STATE_OF_RECORDING == CurrentStateOfRecording.LOSS_CONNECTION_AND_WAIT_NEW){
-                        time = 0
 
 
+                                if (CONNECTING_STYLE == ConnectingStyle.AUTO_BY_BOND) {
+                                    /**
+                                     * AUTOMATIC MODE by bond list
+                                     */
+                                    Log.w("sss",">>>>>>>>  AUTOMATIC MODE filtered: ${alreadyBondedDevices.joinToString()}")
+                                    // auto mode, here we find we
+                                    // bonding mode
 
-                        if (CONNECTING_STYLE == ConnectingStyle.AUTO_BY_BOND) {
-                            /**
-                             * AUTOMATIC MODE by bond list
-                             */
-                            Log.w("sss",">>>>>>>>  AUTOMATIC MODE filtered: ${alreadyBondedDevices.joinToString()}")
-                            // auto mode, here we find we
-                            // bonding mode
+                                    // remove ble devices which we can`t make connect
+                                    //toastShow("bonded devices: ${bondedDevices.joinToString()}",Color.YELLOW,this@EndlessService)
 
-                            // remove ble devices which we can`t make connect
-                            //toastShow("bonded devices: ${bondedDevices.joinToString()}",Color.YELLOW,this@EndlessService)
+                                    for (bt in alreadyBondedDevices) {
+                                        if (bt.name.toString().contains("itelma",true) == true){
+                                            Log.i("cccc",">>> again connect ")
+                                            connectAndPlayNotify(bt)
+                                            delay(7000)
+                                        }
+                                    }
+                                    delay(5000)
 
-                            for (bt in alreadyBondedDevices) {
-                                if (bt.name.toString().contains("itelma",true) == true){
-                                    Log.i("cccc",">>> again connect ")
-                                    connectAndPlayNotify(bt)
-                                    delay(7000)
+                                    refreshNotification("Need bond tablet Itelma ",true)
+                                    Log.d("ccc","List of bonded devices "+noFilteredDevices.toString())
+                                    //startScan()
                                 }
-                            }
-//                            try{
-//
-//                                for (bt in erroredDevices){
-//
-//                                    for (i in 0 until filteredDevices.size) {
-//
-//                                        if (bt == filteredDevices[i]){
-//                                            filteredDevices.removeAt(i)
-//                                        }
-//
-//                                    }
-//
-//                                }
-//                            }catch (e: Exception){}
-//                            Log.i("fff","filteredDevices.size ${filteredDevices.size}")
-//                            if (filteredDevices.size > 0){
-//
-//                                connectAndPlayNotify(filteredDevices[0])
-//
-//                            }else {
-//                                refreshListOfBondedDevices()
-//                            }
+                                else if (CONNECTING_STYLE == ConnectingStyle.AUTO_BY_SEARCH)
+                                {
 
-                            delay(5000)
+                                }
+                                else
+                                {
+                                    /**
+                                     * MANUAL MODE
+                                     */
+                                    Log.w("sss",">>>>>>>>  MANUAL MODE")
+                                    // debug and just record mode
+                                    if (SUPER_BLE_DEVICE != null){
+                                        Toast.makeText(this@EndlessService,"[Manual mode] Try connect: ${SUPER_BLE_DEVICE?.name}",Toast.LENGTH_SHORT).show()
+                                        connectAndPlayNotify(SUPER_BLE_DEVICE!!)
 
+                                    }else {
+                                        Log.w("www","ble device is NULL")
+                                        Toast.makeText(this@EndlessService,"ble device is null",Toast.LENGTH_SHORT).show()
+                                    }
+                                }
+                            }else if (CURRENT_STATE_OF_SERVICE == CurrentStateOfService.RECORDING){
 
+                            }else if (CURRENT_STATE_OF_SERVICE == CurrentStateOfService.CONNECTED_BUT_NO_RECORDING) {
+                                //delay(12000) // i make this delay coz => phone do not have time to turn notifications in ~2 sec
+                                justNotify()
 
-//                            loop1@for (btFilt in 0 until filteredDevices.size){
-//
-//                                Toast.makeText(this@EndlessService,"Try connect: ${SUPER_BLE_DEVICE?.name}",Toast.LENGTH_SHORT).show()
-//
-//
-//                                if (currentStateOfRecording == CurrentStateOfRecording.CONNECTED_BUT_NO_RECORDING ||bleManager?.isConnected == true){
-//                                    Log.i("sss",">>iiiiiiiiiiiiiiiii found available bonded device: ${filteredDevices[btFilt].name} |${filteredDevices[btFilt].address}")
-//
-//                                    break@loop1
-//                                    //cancel()
-//                                }
-//                            }
-                            refreshNotification("Need bond tablet Itelma ",true)
-                            Log.d("ccc","List of bonded devices "+noFilteredDevices.toString())
-                            //startScan()
-                        }
-                        else if (CONNECTING_STYLE == ConnectingStyle.AUTO_BY_SEARCH)
-                        {
-
-                        }
-                        else
-                        {
-                            /**
-                             * MANUAL MODE
-                             */
-                            Log.w("sss",">>>>>>>>  MANUAL MODE")
-                            // debug and just record mode
-                            if (SUPER_BLE_DEVICE != null){
-                                Toast.makeText(this@EndlessService,"[Manual mode] Try connect: ${SUPER_BLE_DEVICE?.name}",Toast.LENGTH_SHORT).show()
-                                connectAndPlayNotify(SUPER_BLE_DEVICE!!)
-
-                            }else {
-                                Log.w("www","ble device is NULL")
-                                Toast.makeText(this@EndlessService,"ble device is null",Toast.LENGTH_SHORT).show()
                             }
                         }
-                    }else if (CURRENT_STATE_OF_RECORDING == CurrentStateOfRecording.RECORDING){
 
-//                        time++
-//                        if (time < 2){
-//                            SoundPlay().playx(this@EndlessService,WhatIMustSay.START_REC)
-//                        }
-
-                    }else if(CURRENT_STATE_OF_RECORDING == CurrentStateOfRecording.CONNECTED_BUT_NO_RECORDING) {
-                        //bleManager?.logSession = Logger.newSession(getApplication(), null, FORBACKGRND_BLE_DEVICE.address, FORBACKGRND_BLE_DEVICE.name) // in logsession we have been error, and i remove this
-
-                        //delay(12000) // i make this delay coz => phone do not have time to turn notifications in ~2 sec
-                        justNotify()
-//                        Handler(Looper.getMainLooper()).postDelayed({
-//
-//                        }, 3000)
-
+                        Actions.NEUTRAL_CONNECTED -> {
+                            Log.i("ccc","ccc NOW is Actions.NEUTRAL_CONNECTED")
+                        }
                     }
+
+
+
                 }
-                if (CURRENT_STATE_OF_RECORDING == CurrentStateOfRecording.CONNECTED_BUT_NO_RECORDING){
+                if (ACTION_NOW != Actions.NEUTRAL_CONNECTED
+
+                    && CURRENT_STATE_OF_SERVICE == CurrentStateOfService.CONNECTED_BUT_NO_RECORDING){
+
                     justNotify()
                     delay(15000)
-                }else if (CURRENT_STATE_OF_RECORDING == CurrentStateOfRecording.RECORDING){
+
+                }else if (CURRENT_STATE_OF_SERVICE == CurrentStateOfService.RECORDING){
                     delay(20000)
                 } else {
                     delay(9000)
@@ -541,7 +526,7 @@ class EndlessService : Service() {
                 }
                 Log.w("sss","<><><><><><><> LOAD SERVICE AGAIN <><><><><>")
             }
-            log("End of the loop for the service")
+            log(">>>>>>>>>End of the loop for the service<<<<<<<<<<<<<")
         }
     }
 
@@ -600,21 +585,11 @@ class EndlessService : Service() {
     val locListener: LocationListener = object : LocationListener {
         override fun onLocationChanged(loc: Location) {
             log("location updated !!")
-            updateLocation(loc)
-            // add what can see gps
+            updateLocation(loc) // add what can see gps
         }
-
-        override fun onProviderEnabled(provider: String) {
-
-        }
-
-        override fun onProviderDisabled(provider: String) {
-
-        }
-
-        override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {
-
-        }
+        override fun onProviderEnabled(provider: String) { log("onProviderEnabled !!") }
+        override fun onProviderDisabled(provider: String) { log("onProviderDisabled !!") }
+        override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
     }
 
 
@@ -670,7 +645,7 @@ class EndlessService : Service() {
     fun connectAndPlayNotify(device: BluetoothDevice){
         SUPER_BLE_DEVICE = device
         // if no connected - connect
-        if (CURRENT_STATE_OF_RECORDING == CurrentStateOfRecording.NO_CONNECTED || CURRENT_STATE_OF_RECORDING == CurrentStateOfRecording.LOSS_CONNECTION_AND_WAIT_NEW){
+        if (CURRENT_STATE_OF_SERVICE == CurrentStateOfService.NO_CONNECTED || CURRENT_STATE_OF_SERVICE == CurrentStateOfService.LOSS_CONNECTION_AND_WAIT_NEW){
             Log.i("ccc","make connectt!!>>${device.name} is connected: ${bleManager?.isConnected == true} is bonded: ${device.bondState != 12} ")
             bleDevice = device
             //FORBACKGRND_BLE_DEVICE = device
@@ -711,21 +686,28 @@ class EndlessService : Service() {
 
     }
 
-    fun justNotify(){
+    private fun justNotify(){
         try {
             if (! bleManager!!.isConnected ){
-                CURRENT_STATE_OF_RECORDING = CurrentStateOfRecording.LOSS_CONNECTION_AND_WAIT_NEW
+                CURRENT_STATE_OF_SERVICE = CurrentStateOfService.LOSS_CONNECTION_AND_WAIT_NEW
             }
         }catch (e: Exception){
-            CURRENT_STATE_OF_RECORDING = CurrentStateOfRecording.LOSS_CONNECTION_AND_WAIT_NEW
+            CURRENT_STATE_OF_SERVICE = CurrentStateOfService.LOSS_CONNECTION_AND_WAIT_NEW
         }
 
         Log.i("sss","make NOTIFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF")
-        if (CURRENT_STATE_OF_RECORDING == CurrentStateOfRecording.CONNECTED_BUT_NO_RECORDING){
+        if (CURRENT_STATE_OF_SERVICE == CurrentStateOfService.CONNECTED_BUT_NO_RECORDING){
             Log.i("ccc","try to connect UUID notif")
             bleManager?.notifyCharacteristic(true,UUID.fromString("74ab521e-060d-26df-aa64-cf4df2d0d641"))
 
         }
+
+    }
+
+    private fun unSubscribe(){
+        try {
+            bleManager?.notifyCharacteristic(isChecked = false,UUID.fromString("74ab521e-060d-26df-aa64-cf4df2d0d641"))
+        }catch (e: Exception){}
 
     }
 
@@ -739,7 +721,7 @@ class EndlessService : Service() {
     }
 
     private fun stopService() {
-
+        stopScan()
         log("Stopping the foreground service")
         Toast.makeText(this, "Service stopping", Toast.LENGTH_SHORT).show()
         try {
