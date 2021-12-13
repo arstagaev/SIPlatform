@@ -17,6 +17,12 @@ class SoundPlay {
     fun playx(context: Context, whatIMustSay: WhatIMustSay){
         try {
             when(whatIMustSay){
+                WhatIMustSay.DING -> {
+                    var disconectSuccess = MediaPlayer.create(context, R.raw.air_ding)
+                    val newPlaybackParams = PlaybackParams()
+                    newPlaybackParams.speed = 1.0F
+                    disconectSuccess.playbackParams = newPlaybackParams
+                }
                 WhatIMustSay.ON -> {
                     var connectSuccess =   MediaPlayer.create(context, R.raw.autopilot_on)
 

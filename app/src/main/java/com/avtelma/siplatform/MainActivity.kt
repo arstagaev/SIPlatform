@@ -156,6 +156,10 @@ class MainActivity : ComponentActivity() {
                 Manifest.permission.BLUETOOTH_SCAN,
                 1
             )
+            requestPermission(
+                Manifest.permission.BLUETOOTH_CONNECT,
+                1
+            )
         }
 
         setContent {

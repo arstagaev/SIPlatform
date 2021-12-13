@@ -196,6 +196,7 @@ class EndlessService : Service() {
                if (i.device.name != null && i.device.name.toString().contains("itelma",true) == true) {
                    LIST_OF_FOUND_DEVICES?.add(i.device)
                    LIST_OF_FOUND_DEVICES.distinct()
+                   Toast.makeText(applicationContext,"Found: ${i.device.name}",Toast.LENGTH_SHORT).show()
                }
 
            }
@@ -216,10 +217,7 @@ class EndlessService : Service() {
                     }
 
                 }
-
-
             }
-
         }
     }
 
@@ -243,8 +241,15 @@ class EndlessService : Service() {
         override fun onNotified(uuid: UUID, bytes: ByteArray?, msg: String?) {
             Log.d("ccc","logy "+bytes)
 
-            if (bytes != null ){
+            if (msg != null) {
+                Log.w("cccnnn"," cccnnn msg from notif:${msg}")
+                SoundPlay().playx(this@EndlessService, WhatIMustSay.DING)
+                Toast.makeText(applicationContext,">>> Subscribe ${msg}",Toast.LENGTH_SHORT).show()
 
+
+            }
+
+            if (bytes != null ){
 
                 var bytesX : ByteArray = bytes
 
@@ -519,6 +524,7 @@ class EndlessService : Service() {
 
                             }else if (CURRENT_STATE_OF_SERVICE == CurrentStateOfService.CONNECTED_BUT_NO_RECORDING) {
                                 //delay(12000) // i make this delay coz => phone do not have time to turn notifications in ~2 sec
+                                delay(700)
                                 justNotify()
 
                             }
@@ -536,7 +542,7 @@ class EndlessService : Service() {
 
                     && CURRENT_STATE_OF_SERVICE == CurrentStateOfService.CONNECTED_BUT_NO_RECORDING){
 
-                    justNotify()
+                    //justNotify()
                     delay(15000)
 
                 }else if (CURRENT_STATE_OF_SERVICE == CurrentStateOfService.RECORDING){
@@ -674,9 +680,13 @@ class EndlessService : Service() {
             toastShow("Connecting to: ${bleDevice?.name}",Color.YELLOW,this@EndlessService)
 
             if (bleManager?.isConnected == false) {
-                reconnect()
-                // if already connected, make notify
-                justNotify()
+                GlobalScope.launch {
+                    reconnect()
+                    // if already connected, make notify
+                    //delay(900)
+                    //justNotify()
+                }
+
             }
 
             if (device.bondState == 10){
@@ -719,6 +729,7 @@ class EndlessService : Service() {
         Log.i("sss","make NOTIFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF")
         if (CURRENT_STATE_OF_SERVICE == CurrentStateOfService.CONNECTED_BUT_NO_RECORDING){
             Log.i("ccc","try to connect UUID notif")
+
             bleManager?.notifyCharacteristic(true,UUID.fromString("74ab521e-060d-26df-aa64-cf4df2d0d641"))
 
         }
