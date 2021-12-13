@@ -19,7 +19,7 @@ class VariablesAndConstants {
 
         // we connect in service by this bluetooth devices:
         var SUPER_BLE_DEVICE       : BluetoothDevice? = null
-        var LIST_OF_FOUND_DEVICES : MutableList<BluetoothDevice> = mutableListOf()
+        var LIST_OF_FOUND_DEVICES : MutableSet<BluetoothDevice> = mutableSetOf()
         //var FORBACKGRND_BLE_DEVICE : BluetoothDevice? = null
         //
         var ACTION_NOW = Actions.START

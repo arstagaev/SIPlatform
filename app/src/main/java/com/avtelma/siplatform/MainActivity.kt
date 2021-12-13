@@ -26,10 +26,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Button
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -237,6 +234,26 @@ class MainActivity : ComponentActivity() {
 
                         }, modifier = Modifier.padding(10.dp)) {
                             Text(text = "Stop Scanning, and finding SUPER_BLE_DEVICE with Force isLocationPermissionGranted: ${isLocationPermissionGranted}",color = Color.Blue)
+                        }
+
+                        Divider(color = Color.Blue, thickness = 1.dp,modifier = Modifier.padding(5.dp))
+
+                        Button(onClick = {
+
+                            //AVTSIPlatform_EntryPoint().setup(ConnectingStyle.AUTO_BY_BOND)
+                            launchCommandInService(Actions.NEUTRAL_CONNECTED)
+
+                        }, modifier = Modifier.padding(10.dp)) {
+                            Text(text = "make, NEUTRAL_CONNECTED",color = Color.Blue)
+                        }
+
+                        Button(onClick = {
+
+                            //AVTSIPlatform_EntryPoint().setup(ConnectingStyle.AUTO_BY_BOND)
+                            launchCommandInService(Actions.SUBS_AND_CONNECTED)
+
+                        }, modifier = Modifier.padding(10.dp)) {
+                            Text(text = "make, SUBS_AND_CONNECTED",color = Color.Blue)
                         }
 
 

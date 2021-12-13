@@ -94,19 +94,20 @@ class EndlessService : Service() {
                 Actions.START.name ->  { startService() }
                 Actions.STOP.name ->   stopService()
                 Actions.UNBOND.name -> unBondDevice()  // include unbond + stopService
-                Actions.NEUTRAL_CONNECTED.name ->{
-                    ACTION_NOW = Actions.NEUTRAL_CONNECTED
-                    //CURRENT_STATE_OF_SERVICE = CurrentStateOfService.WAIT_COMMAND_UNSUBS
-                    unSubscribe()
-                }
                 Actions.SCAN_START.name ->{
                     startScan()
                 }
                 Actions.SCAN_STOP.name ->{
                     stopScan()
                 }
+                Actions.NEUTRAL_CONNECTED.name ->{
+                    ACTION_NOW = Actions.NEUTRAL_CONNECTED
+                    //CURRENT_STATE_OF_SERVICE = CurrentStateOfService.WAIT_COMMAND_UNSUBS
+                    unSubscribe()
+                }
                 Actions.SUBS_AND_CONNECTED.name ->{
                     // aim is make rec again
+                    ACTION_NOW = Actions.SUBS_AND_CONNECTED
                     CURRENT_STATE_OF_SERVICE = CurrentStateOfService.CONNECTED_BUT_NO_RECORDING
                 }
                 Actions.MISC.name -> {
@@ -187,10 +188,14 @@ class EndlessService : Service() {
            if (results.isEmpty())
                return
 
+
+           //LIST_OF_FOUND_DEVICES.clear()
+
            for (i in ArrayList( results)) {
 
                if (i.device.name != null && i.device.name.toString().contains("itelma",true) == true) {
                    LIST_OF_FOUND_DEVICES?.add(i.device)
+                   LIST_OF_FOUND_DEVICES.distinct()
                }
 
            }
@@ -458,10 +463,10 @@ class EndlessService : Service() {
                     }catch (e : Exception){}
 
                     when(ACTION_NOW) {
-                        Actions.START, Actions.STOP , Actions.MISC -> {
+                        Actions.START, Actions.STOP , Actions.SUBS_AND_CONNECTED, Actions.MISC -> {
                             if (   CURRENT_STATE_OF_SERVICE == CurrentStateOfService.NO_CONNECTED
                                 || CURRENT_STATE_OF_SERVICE == CurrentStateOfService.CONNECTING
-                                || CURRENT_STATE_OF_SERVICE == CurrentStateOfService.LOSS_CONNECTION_AND_WAIT_NEW){
+                                || CURRENT_STATE_OF_SERVICE == CurrentStateOfService.LOSS_CONNECTION_AND_WAIT_NEW) {
                                 time = 0
 
 
@@ -817,7 +822,7 @@ class EndlessService : Service() {
 
             //CURRENT_LOG_JUST_PRESENTATION = msg
             builder2.setContentTitle("Log:")
-            builder2.setContentText("$msg spd: $CURRENT_SPEED style: ${CONNECTING_STYLE.name}")
+            builder2.setContentText("$msg spd: $CURRENT_SPEED stl: ${CONNECTING_STYLE.name}")
             notificationManager.notify(notificationChannelId2,2,builder2.build())
 
         }
