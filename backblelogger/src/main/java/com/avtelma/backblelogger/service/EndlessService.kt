@@ -99,8 +99,19 @@ class EndlessService : Service() {
                     //CURRENT_STATE_OF_SERVICE = CurrentStateOfService.WAIT_COMMAND_UNSUBS
                     unSubscribe()
                 }
+                Actions.SCAN_START.name ->{
+                    startScan()
+                }
+                Actions.SCAN_STOP.name ->{
+                    stopScan()
+                }
+                Actions.SUBS_AND_CONNECTED.name ->{
+                    // aim is make rec again
+                    CURRENT_STATE_OF_SERVICE = CurrentStateOfService.CONNECTED_BUT_NO_RECORDING
+                }
                 Actions.MISC.name -> {
                     //startService()
+
                     Log.i("zzz","zzz ${intent.extras?.getInt("CS")}")
                     when(intent.extras?.getInt("CS")) { // Command to Service
 
@@ -440,7 +451,12 @@ class EndlessService : Service() {
                      * Choose something one
                      */
                     //var gattDevices = manager.getConnectedDevices(BluetoothProfile.GATT)
-                    Log.w("ccc"," current state of rec: ${CURRENT_STATE_OF_SERVICE.name} action: ${ACTION_NOW.name} style: ${CONNECTING_STYLE.name} " )
+                    try {
+
+                        Log.w("ccc"," current state of rec: ${CURRENT_STATE_OF_SERVICE.name} action: ${ACTION_NOW.name} style: ${CONNECTING_STYLE.name}  SUPERBD: ${SUPER_BLE_DEVICE?.name}" )
+
+                    }catch (e : Exception){}
+
                     when(ACTION_NOW) {
                         Actions.START, Actions.STOP , Actions.MISC -> {
                             if (   CURRENT_STATE_OF_SERVICE == CurrentStateOfService.NO_CONNECTED
@@ -801,7 +817,7 @@ class EndlessService : Service() {
 
             //CURRENT_LOG_JUST_PRESENTATION = msg
             builder2.setContentTitle("Log:")
-            builder2.setContentText("$msg spd: $CURRENT_SPEED")
+            builder2.setContentText("$msg spd: $CURRENT_SPEED style: ${CONNECTING_STYLE.name}")
             notificationManager.notify(notificationChannelId2,2,builder2.build())
 
         }

@@ -48,6 +48,7 @@ import androidx.compose.runtime.getValue
 // for a `var` variable also add
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import com.avtelma.backblelogger.AVTSIPlatform_EntryPoint
@@ -152,7 +153,7 @@ class MainActivity : ComponentActivity() {
         }
 
 
-        AVTSIPlatform_EntryPoint().setup(ConnectingStyle.MANUAL,)
+
         runOnUiThread {
             requestPermission(
                 Manifest.permission.BLUETOOTH_SCAN,
@@ -193,33 +194,52 @@ class MainActivity : ComponentActivity() {
 
                             commonDocumentDirPath("Rock")
 
-                        }) {
-                            Text(text = "ROOOCKK",color = androidx.compose.ui.graphics.Color.Red)
+                        }, modifier = Modifier.padding(10.dp)) {
+                            Text(text = "Test create file directory",color = Color.Blue)
                         }
 
                         Button(onClick = {
 
                             appendText("Recur.txt","++++++")
 
-                        }) {
-                            Text(text = "Create file",color = androidx.compose.ui.graphics.Color.Blue)
+                        }, modifier = Modifier.padding(10.dp)) {
+                            Text(text = "Create file ",color = Color.Blue)
+                        }
+
+                        Button(onClick = {
+                            AVTSIPlatform_EntryPoint().setup(ConnectingStyle.MANUAL)
+                            launchCommandInService(Actions.START)
+
+                        }, modifier = Modifier.padding(10.dp)) {
+                            Text(text = "Start service, MANUAL",color = Color.Blue)
                         }
 
                         Button(onClick = {
 
-                            autoConnectService()
+                            AVTSIPlatform_EntryPoint().setup(ConnectingStyle.AUTO_BY_BOND)
+                            launchCommandInService(Actions.START)
 
-                        }) {
-                            Text(text = "Start service",color = androidx.compose.ui.graphics.Color.Magenta)
+                        }, modifier = Modifier.padding(10.dp)) {
+                            Text(text = "Start service, AUTO_BY_BOND",color = Color.Blue)
                         }
 
                         Button(onClick = {
                             requestLocationPermission()
-                            autoConnectService(6)
+                            launchCommandInService(Actions.SCAN_START)
 
-                        }) {
-                            Text(text = "Start service with Force isLocationPermissionGranted: ${isLocationPermissionGranted}",color = androidx.compose.ui.graphics.Color.Magenta)
+                        }, modifier = Modifier.padding(10.dp)) {
+                            Text(text = "Start Scanning, and finding SUPER_BLE_DEVICE with Force isLocationPermissionGranted: ${isLocationPermissionGranted}",color = Color.Blue)
                         }
+
+                        Button(onClick = {
+                            requestLocationPermission()
+                            launchCommandInService(Actions.SCAN_STOP)
+
+                        }, modifier = Modifier.padding(10.dp)) {
+                            Text(text = "Stop Scanning, and finding SUPER_BLE_DEVICE with Force isLocationPermissionGranted: ${isLocationPermissionGranted}",color = Color.Blue)
+                        }
+
+
                     }
                 }
             }
@@ -439,10 +459,10 @@ class MainActivity : ComponentActivity() {
 
     }
 
-    fun autoConnectService() {
+    fun launchCommandInService(action : Actions) {
         Intent(this, EndlessService::class.java).also {
-            it.action = Actions.START.name
-            it.putExtra("CS",6)
+            it.action = action.name
+            //it.putExtra("CS",6)
 
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -455,19 +475,19 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    fun autoConnectService(code:  Int) {
-        Intent(this, EndlessService::class.java).also {
-            it.action = Actions.MISC.name
-            it.putExtra("CS",code)
-
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                log("Starting the service in >=26 Mode")
-                startForegroundService(it)
-                return
-            }
-            log("Starting the service in < 26 Mode")
-            startService(it)
-        }
-    }
+//    fun autoConnectService(code:  Int) {
+//        Intent(this, EndlessService::class.java).also {
+//            it.action = Actions.MISC.name
+//            it.putExtra("CS",code)
+//
+//
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//                log("Starting the service in >=26 Mode")
+//                startForegroundService(it)
+//                return
+//            }
+//            log("Starting the service in < 26 Mode")
+//            startService(it)
+//        }
+//    }
 }
