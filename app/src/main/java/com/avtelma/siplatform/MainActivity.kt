@@ -56,6 +56,7 @@ import com.avtelma.backblelogger.tools.VariablesAndConstants
 import com.avtelma.backblelogger.tools.VariablesAndConstants.Companion.LIST_OF_FOUND_DEVICES
 import com.avtelma.backblelogger.tools.VariablesAndConstants.Companion.SUPER_BLE_DEVICE
 import com.avtelma.backblelogger.tools.log
+import com.avtelma.backgroundparser.InputSessionParser.Companion.PIZDEC
 import timber.log.Timber
 
 // or just
@@ -116,6 +117,7 @@ class MainActivity : ComponentActivity() {
         if (BuildConfig.DEBUG) {
             Timber.plant(Timber.DebugTree())
         }
+        PIZDEC // fixme test delete
 
         Log.i("zzz","zzz ${getFilesDir()} or ${getCacheDir()}   // ${getExternalCacheDir()}")
 
