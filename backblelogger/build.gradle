@@ -1,7 +1,7 @@
 plugins {
     id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
-    id 'maven-publish'
+    id 'maven-publish' // jitpack io
 }
 
 android {
@@ -69,7 +69,7 @@ dependencies {
     implementation 'com.google.android.libraries.maps:maps:3.1.0-beta'
     implementation 'com.google.android.gms:play-services-maps:17.0.1'
 }
-
+//for jitpack.io
 afterEvaluate {
     publishing {
         publications {

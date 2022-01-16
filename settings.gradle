@@ -24,4 +24,3 @@ dependencyResolutionManagement {
 rootProject.name = "SIPlatform"
 include ':app'
 include ':backblelogger'
-include ':backgroundparser'

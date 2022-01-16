@@ -4,11 +4,11 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import com.avtelma.backblelogger.service.ServiceState
-import com.avtelma.backblelogger.service.getServiceState
+import com.avtelma.backblelogger.logrecorder.service.ServiceState
+import com.avtelma.backblelogger.logrecorder.service.getServiceState
 import com.avtelma.backblelogger.enum.Actions
-import com.avtelma.backblelogger.tools.log
-import com.avtelma.backblelogger.service.EndlessService
+import com.avtelma.backblelogger.logrecorder.tools.log
+import com.avtelma.backblelogger.logrecorder.service.EndlessService
 
 class StartReceiver : BroadcastReceiver() {
     // for notifications

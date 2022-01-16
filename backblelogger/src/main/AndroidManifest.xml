@@ -49,7 +49,12 @@
         <!--        </activity>-->
 
         <service
-            android:name=".service.EndlessService"
+            android:name=".logrecorder.service.EndlessService"
+            android:enabled="true"
+            android:exported="false" />
+
+        <service
+            android:name=".rawparser.service_parsing_events.ParsingEventService"
             android:enabled="true"
             android:exported="false" />
 
@@ -70,8 +75,8 @@
         <!--                <action android:name="android.bluetooth.device.action.PAIRING_REQUEST" />-->
         <!--            </intent-filter>-->
         <!--        </receiver>-->
-
-        <receiver android:name=".broadcastreceivers.CloseServiceReceiver" />
+        <receiver android:name=".broadcastreceivers.CloseServiceReceiver_RawParser" />
+        <receiver android:name=".broadcastreceivers.CloseServiceReceiver_RecorderLogs" />
         <receiver android:name=".broadcastreceivers.UnBondingReceiver" />
 
         <provider

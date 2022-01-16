@@ -6,20 +6,21 @@ import android.content.Intent
 import android.os.Build
 import android.util.Log
 import com.avtelma.backblelogger.enum.Actions
+import com.avtelma.backblelogger.rawparser.service_parsing_events.ParsingEventService
 import com.avtelma.backblelogger.logrecorder.service.EndlessService
 
-class UnBondingReceiver : BroadcastReceiver(){
+class CloseServiceReceiver_RawParser : BroadcastReceiver(){
 
-    override fun onReceive(context: Context, intent: Intent?) {
-        Log.i("ccc","ccc  UNBONDING   !!!!!")
-        Log.i("ccc","ccc  UNBONDING   !!!!!")
-        Log.i("ccc","ccc  UNBONDING   !!!!!")
+    override fun onReceive(context: Context, intent: Intent) {
+        //if (getServiceState(this) == ServiceState.STOPPED && action == Actions.STOP) return
+        Log.i("ccc","ccc  START!!!!!")
         //log("###############Start !!!!!!!!!!!!!!!!")
 
-        Intent(context, EndlessService::class.java).also {
-            it.action = Actions.UNBOND.name
+        //context.sendBroadcast(Intent("call"));
 
-            // //Unbonding
+        Intent(context, ParsingEventService::class.java).also {
+            it.action = Actions.STOP.name
+
             // EndlessService().bleManager?.notifyCharacteristic(true, UUID.fromString("74ab521e-060d-26df-aa64-cf4df2d0d643"))
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -31,14 +32,6 @@ class UnBondingReceiver : BroadcastReceiver(){
             //log("Starting the service in < 26 Mode")
             context.startService(it)
         }
-
-
-//        Intent(context, EndlessService::class.java).also {
-//            //it.action = Actions.STOP.name
-//            context.sendBroadcast(Intent("call"));
-//            //Unbonding
-//            //EndlessService().bleManager?.notifyCharacteristic(true, UUID.fromString("74ab521e-060d-26df-aa64-cf4df2d0d643"))
-//
-//        }
     }
+
 }

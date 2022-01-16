@@ -25,6 +25,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
@@ -51,12 +52,14 @@ import androidx.core.app.ActivityCompat
 import com.avtelma.backblelogger.AVTSIPlatform_EntryPoint
 import com.avtelma.backblelogger.enum.Actions
 import com.avtelma.backblelogger.enum.ConnectingStyle
-import com.avtelma.backblelogger.service.EndlessService
-import com.avtelma.backblelogger.tools.VariablesAndConstants
-import com.avtelma.backblelogger.tools.VariablesAndConstants.Companion.LIST_OF_FOUND_DEVICES
-import com.avtelma.backblelogger.tools.VariablesAndConstants.Companion.SUPER_BLE_DEVICE
-import com.avtelma.backblelogger.tools.log
-import com.avtelma.backgroundparser.InputSessionParser.Companion.PIZDEC
+import com.avtelma.backblelogger.rawparser.service_parsing_events.ParsingActions
+import com.avtelma.backblelogger.rawparser.service_parsing_events.ParsingEventService
+import com.avtelma.backblelogger.logrecorder.service.EndlessService
+import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants
+import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants.Companion.LIST_OF_FOUND_DEVICES
+import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants.Companion.SUPER_BLE_DEVICE
+import com.avtelma.backblelogger.logrecorder.tools.log
+//import com.avtelma.backgroundparser.InputSessionParser.Companion.PIZDEC
 import timber.log.Timber
 
 // or just
@@ -92,23 +95,16 @@ class MainActivity : ComponentActivity() {
             Timber.i("zzz ${LIST_OF_FOUND_DEVICES?.joinToString()}")
             if (VariablesAndConstants.LIST_OF_FOUND_DEVICES != null ){
 
-
                 Timber.i("zzz ${VariablesAndConstants.LIST_OF_FOUND_DEVICES?.toString()}  name super: ${SUPER_BLE_DEVICE?.name}")
-
                 for (i in ArrayList( LIST_OF_FOUND_DEVICES)) {
-
                     if (i.name != null && i.name.toString().contains("itelma",true) == true) {
                         SUPER_BLE_DEVICE = i
                         Timber.i("I founded!!!  !!!")
                     }
-
                 }
             }
         }
-
-        override fun onFinish() {
-        }
-
+        override fun onFinish() {}
     }
 
     @OptIn(ExperimentalPermissionsApi::class)
@@ -117,7 +113,7 @@ class MainActivity : ComponentActivity() {
         if (BuildConfig.DEBUG) {
             Timber.plant(Timber.DebugTree())
         }
-        PIZDEC // fixme test delete
+
 
         Log.i("zzz","zzz ${getFilesDir()} or ${getCacheDir()}   // ${getExternalCacheDir()}")
 
@@ -131,12 +127,9 @@ class MainActivity : ComponentActivity() {
         }
         timer.start()
 //        try {
-//
 //            appendText("wow.txt","777")
-//
 //        }catch (e :Exception){
 //            Log.e("zzz","zzz  ${e.message}")
-//
 //            appendText2("www.txt","888")
 //        }
 
@@ -166,7 +159,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             var visibleOfPermissions by remember { permiss }
-
+            var MASTER_PADDING = 3.dp
             AnimatedVisibility(
                 visible = visibleOfPermissions,
                 enter = fadeIn(
@@ -197,7 +190,7 @@ class MainActivity : ComponentActivity() {
 
                             commonDocumentDirPath("Rock")
 
-                        }, modifier = Modifier.padding(10.dp)) {
+                        }, modifier = Modifier.padding(MASTER_PADDING)) {
                             Text(text = "Test create file directory",color = Color.Blue)
                         }
 
@@ -205,7 +198,7 @@ class MainActivity : ComponentActivity() {
 
                             appendText("Recur.txt","++++++")
 
-                        }, modifier = Modifier.padding(10.dp)) {
+                        }, modifier = Modifier.padding(MASTER_PADDING)) {
                             Text(text = "Create file ",color = Color.Blue)
                         }
 
@@ -213,7 +206,7 @@ class MainActivity : ComponentActivity() {
                             AVTSIPlatform_EntryPoint().setup(ConnectingStyle.MANUAL)
                             launchCommandInService(Actions.START)
 
-                        }, modifier = Modifier.padding(10.dp)) {
+                        }, modifier = Modifier.padding(MASTER_PADDING)) {
                             Text(text = "Start service, MANUAL",color = Color.Blue)
                         }
 
@@ -222,7 +215,7 @@ class MainActivity : ComponentActivity() {
                             AVTSIPlatform_EntryPoint().setup(ConnectingStyle.AUTO_BY_BOND)
                             launchCommandInService(Actions.START)
 
-                        }, modifier = Modifier.padding(10.dp)) {
+                        }, modifier = Modifier.padding(MASTER_PADDING)) {
                             Text(text = "Start service, AUTO_BY_BOND",color = Color.Blue)
                         }
 
@@ -230,7 +223,7 @@ class MainActivity : ComponentActivity() {
                             requestLocationPermission()
                             launchCommandInService(Actions.SCAN_START)
 
-                        }, modifier = Modifier.padding(10.dp)) {
+                        }, modifier = Modifier.padding(MASTER_PADDING)) {
                             Text(text = "Start Scanning, and finding SUPER_BLE_DEVICE with Force isLocationPermissionGranted: ${isLocationPermissionGranted}",color = Color.Blue)
                         }
 
@@ -238,7 +231,7 @@ class MainActivity : ComponentActivity() {
                             requestLocationPermission()
                             launchCommandInService(Actions.SCAN_STOP)
 
-                        }, modifier = Modifier.padding(10.dp)) {
+                        }, modifier = Modifier.padding(MASTER_PADDING)) {
                             Text(text = "Stop Scanning, and finding SUPER_BLE_DEVICE with Force isLocationPermissionGranted: ${isLocationPermissionGranted}",color = Color.Blue)
                         }
 
@@ -249,7 +242,7 @@ class MainActivity : ComponentActivity() {
                             //AVTSIPlatform_EntryPoint().setup(ConnectingStyle.AUTO_BY_BOND)
                             launchCommandInService(Actions.NEUTRAL_CONNECTED)
 
-                        }, modifier = Modifier.padding(10.dp)) {
+                        }, modifier = Modifier.padding(MASTER_PADDING)) {
                             Text(text = "make, NEUTRAL_CONNECTED",color = Color.Blue)
                         }
 
@@ -258,8 +251,31 @@ class MainActivity : ComponentActivity() {
                             //AVTSIPlatform_EntryPoint().setup(ConnectingStyle.AUTO_BY_BOND)
                             launchCommandInService(Actions.SUBS_AND_CONNECTED)
 
-                        }, modifier = Modifier.padding(10.dp)) {
+                        }, modifier = Modifier.padding(MASTER_PADDING)) {
                             Text(text = "make, SUBS_AND_CONNECTED",color = Color.Blue)
+                        }
+                        Divider(color = Color.Blue, thickness = 1.dp,modifier = Modifier.padding(5.dp))
+                        Divider(color = Color.Blue, thickness = 1.dp,modifier = Modifier.padding(5.dp))
+
+                        Button(onClick = {
+
+                            //AVTSIPlatform_EntryPoint().setup(ConnectingStyle.AUTO_BY_BOND)
+                            launchCommandInService_RAWPARSER(ParsingActions.FULL_PARSING)
+
+                        }, modifier = Modifier.padding(MASTER_PADDING),
+                            colors = ButtonDefaults.buttonColors(backgroundColor = Color.White)) {
+                            Text(text = "start RawParser FULL_PARSING",color = Color.Blue)
+                        }
+                        Button(onClick = {
+
+                            //AVTSIPlatform_EntryPoint().setup(ConnectingStyle.AUTO_BY_BOND)
+                            //launchCommandInService_RAWPARSER(ParsingActions.START)
+                            launchCommandInService_RAWPARSER(ParsingActions.STOP)
+
+                        }, modifier = Modifier.padding(MASTER_PADDING).background(Color.White),
+                            colors = ButtonDefaults.buttonColors(backgroundColor = Color.White)
+                        ) {
+                            Text(text = "start RawParser STOP",color = Color.Blue)
                         }
 
 
@@ -479,12 +495,27 @@ class MainActivity : ComponentActivity() {
             Log.e("ccc","ERROR "+ e.message)
             e.printStackTrace()
         }
-
     }
 
     fun launchCommandInService(action : Actions) {
         Intent(this, EndlessService::class.java).also {
             it.action = action.name
+            //it.putExtra("CS",6)
+
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                log("Starting the service in >=26 Mode")
+                startForegroundService(it)
+                return
+            }
+            log("Starting the service in < 26 Mode")
+            startService(it)
+        }
+    }
+
+    fun launchCommandInService_RAWPARSER(parsingAction : ParsingActions) {
+        Intent(this, ParsingEventService::class.java).also {
+            it.action = parsingAction.name
             //it.putExtra("CS",6)
 
 
