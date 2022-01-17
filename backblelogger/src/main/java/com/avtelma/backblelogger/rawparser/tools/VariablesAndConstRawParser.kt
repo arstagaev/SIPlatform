@@ -19,7 +19,7 @@ object VariablesAndConstRawParser {
     val root2_preproc = File(Environment.getExternalStorageDirectory(), "ItelmaBLE_Background/PreProcessing")
     val root3_json    = File(Environment.getExternalStorageDirectory(), "ItelmaBLE_Background/Jsons")
 
-    //for define needed duration
+    //for define needed duration fixme i doubt when is second
     const val THRESHOLD_STOP_DURATION      = 75 // [seconds]
     const val THRESHOLD_GAS_BREAK_DURATION = 25 // [seconds]
     const val THRESHOLD_TURN_DURATION      = 25 // [seconds]

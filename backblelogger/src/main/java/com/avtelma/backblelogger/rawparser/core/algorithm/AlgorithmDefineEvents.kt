@@ -116,7 +116,11 @@ var CONDITION = 0
 
 //var event = EventLine(0,0,0,0,CONDITION)
 
-var event = EventLine(0,0,0,0, CONDITION,0,0,0,0)
+var EvsumForw = 0.0
+var EvsumSide = 0.0
+var EvsumVert = 0.0
+
+var event = EventLine(0,0,0,0, CONDITION,0,0,0,0,0.0,0.0,0.0)
 //var CONDITION = -1
 var BIG_BUFFER : String = ""
 fun calc(arrayOfXYZinner: ArrayList<XYZ>) : EventLine {
@@ -129,6 +133,9 @@ fun calc(arrayOfXYZinner: ArrayList<XYZ>) : EventLine {
     event.turn_3     = 0
     event.jump_4     = 0
     event.condition_debug = CONDITION
+    event.Forw       = 0.0
+    event.Side       = 0.0
+    event.Vert       = 0.0
     //event = EventLine(0,0,0,0,CONDITION)
 
     //Log.i("ccc","uuu isHoris $isHorisonted isAzim $isAzimuted")
@@ -252,7 +259,9 @@ fun calc(arrayOfXYZinner: ArrayList<XYZ>) : EventLine {
             if (abs(MeanA[Forw]) > GAS_BREAKS_THRESHHOLD) {
 
                 event.gas_break_2 = ((MeanA[Forw]).sign * isReverse).toInt()
-
+                // need catch from array
+                event.Forw = abs(MeanA[Forw])
+                EvsumForw += abs(MeanA[Forw])
             }
 
             if (DevA_mod < STOP_THRESHOLD) {
@@ -266,20 +275,34 @@ fun calc(arrayOfXYZinner: ArrayList<XYZ>) : EventLine {
 
                 event.turn_3  = ((MeanA[Side]).sign * isReverse).toInt()
 
+                event.Side = abs(MeanA[Side])
+                EvsumSide += abs(MeanA[Side])
             }
 
             if (DevA[Vert] > BUMP_THRESHHOLD) {
 
                 event.jump_4 = 1
 
+                event.Vert = DevA[Vert]
+                EvsumVert += DevA[Vert]
             }
 
+//            event.Forw = abs(MeanA[Forw])
+//            EvsumForw += abs(MeanA[Forw])
+//
+//            event.Side = abs(MeanA[Side])
+//            EvsumSide += abs(MeanA[Side])
+//
+//            event.Vert = DevA[Vert]
+//            EvsumVert += DevA[Vert]
+            Log.i("mmm","mmark:>>Forw ${MeanA[Forw]} side ${MeanA[Side]} vert ${DevA[Vert]} |<< // ${MeanA.joinToString()} ")
 
             // for (g in 0 until Events.size ){
             //     Log.i("event","size:${Events.size} events: ${Events[g].stop} ${Events[g].gas_break} ${Events[g].turn} ${Events[g].jump}")
             // }
         }
     }
+
     logMB("|||${event.stop_1},${event.gas_break_2},${event.turn_3},${event.jump_4},${event.condition_debug}||| Cond: $CONDITION : $CURRENT_POS  Q_Hor:${Q_Hor[0]} ${Q_Hor[1]} ${Q_Hor[2]} ${Q_Hor[3]}; Q_Forw:${Q_Forw[0]} ${Q_Forw[1]} ${Q_Forw[2]} ${Q_Forw[3]}; MeanA:[${MeanA[0]} ${MeanA[1]} ${MeanA[2]}] MeanA_mod:$MeanA_mod* DevA:[${DevA[0]} ${DevA[1]} ${DevA[2]}]; *${DevA_mod.toString()}* ")
     return event
 
@@ -321,91 +344,17 @@ var last_LtLn : LtLn = LtLn(0.0,0.0)
 var needPublishLog = false
 
 var SAVER_Event_Container : EventPreFinal? = null
-//fun compareLogs (eventLine: EventLine, lat: Float, lon : Float) {
-//    TIME++
-//    needPublishLog = false
-//    //stop_1
-//    //gas_break_2
-//    //turn_3
-//    //jump_4
-//    if (last_stop_1 == eventLine.stop_1) {
-//        event.stop_duration++
-//    } else if (eventLine.stop_duration >= 75) {
-//        needPublishLog = true
-//    }
-//
-//    if (last_gas_break_2 == eventLine.gas_break_2 && !needPublishLog) {
-//        event.gas_break_duration++
-//    } else if (eventLine.gas_break_duration >= 25) {
-//        needPublishLog = true
-//    }
-//
-//    if (last_turn_3 == eventLine.turn_3 && !needPublishLog) {
-//        event.turn_duration++
-//    } else if (eventLine.turn_duration >= 25) {
-//        needPublishLog = true
-//    }
-//
-//    if (last_jump_4 == eventLine.jump_4 && !needPublishLog) {
-//        event.jump_duration++
-//    } else if (eventLine.stop_duration >= 12) {
-//        needPublishLog = true
-//    }
-//
-//
-//    ////
-//    if (needPublishLog) {
-//        var maxDuration = arrayListOf<Int>(event.stop_duration, event.gas_break_duration, event.turn_duration, event.jump_duration).maxOrNull()
-//        if (maxDuration == null) { maxDuration = 1000000 } // just for test\\\
-//
-//
-//        var asd = EventPreFinal(
-//            last_stop_1,
-//            last_gas_break_2,
-//            last_turn_3,
-//            last_jump_4,eventLine.condition_debug,
-//            TIME -maxDuration,
-//            event.stop_duration,
-//            event.gas_break_duration,
-//            event.turn_duration,
-//            event.jump_duration,
-//            last_LtLn
-//        )
-//
-//
-//        writePreProcLog(asd)
-//        //writePreProcLog("${last_stop_1},${last_gas_break_2},${last_turn_3},${last_jump_4} ${eventLine.condition_debug} ${TIME-maxDuration} ${event.stop_duration},${event.gas_break_duration},${event.turn_duration},${event.jump_duration}")
-//
-//        //BUFFER_FILTER.add(EventPreFinal(last_stop_1, last_gas_break_2, last_turn_3, last_jump_4,condition_debug = eventLine.condition_debug,TIME-maxDuration,eventLine.stop_duration,eventLine.gas_break_duration,eventLine.turn_duration,eventLine.jump_duration))
-//
-//
-////        if (last_stop_1      != eventLine.stop_1 ) {
-////            event.stop_duration      = 1
-////        }
-////        if (last_gas_break_2 != eventLine.gas_break_2 ) {
-////            event.gas_break_duration = 1
-////        }
-////        if (last_turn_3      != eventLine.turn_3 ) {
-////            event.turn_duration      = 1
-////        }
-////        if (last_jump_4      == eventLine.jump_4 ) { // coz in fly auto cant be in 3+ sec
-////            event.jump_duration      = 1
-////        }
-//        event.stop_duration      = 1
-//        event.gas_break_duration = 1
-//        event.turn_duration      = 1
-//        event.jump_duration      = 1
-//    }
-//    last_stop_1      = eventLine.stop_1
-//    last_gas_break_2 = eventLine.gas_break_2
-//    last_turn_3      = eventLine.turn_3
-//    last_jump_4      = eventLine.jump_4
-//}
+
+var EvrawForw = 0.0
+var EvrawSide = 0.0
+var EvrawVert = 0.0
 
 fun compareLogs2 (eventLine: EventLine, lat: Double, lon : Double) {
     TIME++
     needPublishLog = false
     var needGetOff = false
+
+
     //stop_1
     //gas_break_2
     //turn_3
@@ -453,16 +402,31 @@ fun compareLogs2 (eventLine: EventLine, lat: Double, lon : Double) {
             return
 
         var maxDuration = arrayListOf<Int>(event.stop_duration, event.gas_break_duration, event.turn_duration, event.jump_duration).maxOrNull()
-        if (maxDuration == null) { maxDuration = 1000000 } // just for test\\\
+        if (maxDuration == null) { maxDuration = 1000000 } // just for test \\\
+        /////
+        /**
+         * Scoring Part
+         */
+        if (event.gas_break_duration > 0)
+            EvrawForw = EvsumForw / (event.gas_break_duration / 25 ).toDouble() // need in ranges: 8-35 but i have 9
+
+        if (event.turn_duration > 0)
+            EvrawSide = EvsumSide / (event.turn_duration / 25 ).toDouble()
+
+        if (event.jump_duration > 0)
+            EvrawVert = EvsumVert / (event.jump_duration / 25 ).toDouble()
+        Log.i("mmm","mmark: ${EvsumForw} ${EvsumSide} ${EvsumVert} |>|> ${EvrawForw} ${EvrawSide} ${EvrawVert} // ")
 
 
         var asd = EventPreFinal(
             last_stop_1, last_gas_break_2, last_turn_3, last_jump_4,eventLine.condition_debug,
             TIME -maxDuration,
             event.stop_duration, event.gas_break_duration, event.turn_duration, event.jump_duration,
-            last_LtLn!!
+            last_LtLn!!,
+            PowerCalc(EvrawForw,8,28),
+            PowerCalc(EvrawForw,8,35),
+            PowerCalc(EvrawSide,7,40)
         )
-
 
         writePreProcLog(asd)
 
@@ -470,6 +434,14 @@ fun compareLogs2 (eventLine: EventLine, lat: Double, lon : Double) {
         event.gas_break_duration = 1
         event.turn_duration      = 1
         event.jump_duration      = 1
+
+        EvsumForw = 0.0
+        EvsumSide = 0.0
+        EvsumVert = 0.0
+        //
+        EvrawForw = 0.0
+        EvrawSide = 0.0
+        EvrawVert = 0.0
     }
     last_stop_1      =  eventLine.stop_1
     last_gas_break_2 =  eventLine.gas_break_2
@@ -483,10 +455,31 @@ fun compareLogs2 (eventLine: EventLine, lat: Double, lon : Double) {
         last_stop_1, last_gas_break_2, last_turn_3, last_jump_4,eventLine.condition_debug,
         TIME -maxDurationSAVER!!,
         event.stop_duration, event.gas_break_duration, event.turn_duration, event.jump_duration,
-        last_LtLn!!
+        last_LtLn!!,
+        PowerCalc(EvrawForw,8,28),
+        PowerCalc(EvrawForw,8,35),
+        PowerCalc(EvrawSide,7,40)
     )
 }
 
+fun PowerCalc(ind : Double,old_min : Int,old_max : Int): Double {
+    var new_min=1.0;
+    var new_max=10.0;
+    var res = 0.0
+
+    var new= new_max -(ind-old_min) * ((new_max-new_min) / (old_max-old_min));
+    Log.i("mark","mark: ${new}")
+    if(new < 1.0) {
+        res=1.0;
+    } else {
+        if(new>10.0 ){
+            res=10.0;
+        } else {
+            res=new;
+        }
+    }
+    return res
+}
 //fun compareLogs3 (eventLine: EventLine, lat: Float, lon : Float) { // without any compress ,like raw may be present
 //    TIME++
 //    needPublishLog = false
@@ -599,7 +592,7 @@ fun writePreProcLog(s: EventPreFinal) {
 
         val fileOutputStream = FileOutputStream(file,true)
         val outputStreamWriter = OutputStreamWriter(fileOutputStream)
-        outputStreamWriter.appendLine("${s.stop_1},${s.gas_break_2},${s.turn_3},${s.jump_4} ${s.condition_debug} ${s.time} ${s.stop_duration},${s.gas_break_duration},${s.turn_duration},${s.jump_duration} ${checkZeroOrNot(s.ltln.lat)},${checkZeroOrNot(s.ltln.lon)}")
+        outputStreamWriter.appendLine("${s.stop_1},${s.gas_break_2},${s.turn_3},${s.jump_4} ${s.condition_debug} ${s.time} ${s.stop_duration},${s.gas_break_duration},${s.turn_duration},${s.jump_duration} ${checkZeroOrNot(s.ltln.lat)},${checkZeroOrNot(s.ltln.lon)} ${s.Gas},${s.Break},${s.Turn}")
 
         outputStreamWriter.close()
         fileOutputStream.close()

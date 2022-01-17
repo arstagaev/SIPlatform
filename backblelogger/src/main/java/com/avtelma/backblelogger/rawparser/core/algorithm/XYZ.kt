@@ -19,6 +19,10 @@ data class EventLine(
     var gas_break_duration : Int,
     var turn_duration : Int,
     var jump_duration : Int,
+
+    var Forw : Double,
+    var Side : Double,
+    var Vert : Double
 //
 //    var time : Int
 )
@@ -38,7 +42,11 @@ data class EventPreFinal(
     var turn_duration : Int,
     var jump_duration : Int,
 
-    var ltln : LtLn
+    var ltln : LtLn,
+
+    var Gas   : Double,
+    var Break : Double,
+    var Turn  : Double
 )
 
 

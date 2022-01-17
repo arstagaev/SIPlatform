@@ -1,6 +1,7 @@
 package com.avtelma.backblelogger.enum
 
 enum class CurrentStateOfService(s: String) {
+    //OFF("off"),
     NO_CONNECTED("no connected"),
     CONNECTING("connecting"),
     CONNECTED_BUT_NO_RECORDING("no recording"),
