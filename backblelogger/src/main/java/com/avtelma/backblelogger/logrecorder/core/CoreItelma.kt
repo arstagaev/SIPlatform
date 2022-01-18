@@ -3,7 +3,7 @@ package com.avtelma.backblelogger.logrecorder.core
 import android.util.Log
 import com.avtelma.backblelogger.enum.TypeOfInputLog
 import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants.Companion.TYPE_OF_INPUT_LOG
-
+import com.avtelma.backblelogger.logrecorder.tools.generateNameOfAllLogPerSession
 
 
 fun dataParse2(data : ByteArray): RawTrip {
@@ -22,6 +22,8 @@ fun dataParse2(data : ByteArray): RawTrip {
     if (data[0] == startOfTrip) { // start trip 01
         i = 6
         TYPE_OF_INPUT_LOG = TypeOfInputLog.START_REC
+        // Generate new file
+        //generateNameOfAllLogPerSession()
 
     }else if ( data[0] == history) { // history 02 & 09 or realtime 05
         i = 2
@@ -40,6 +42,7 @@ fun dataParse2(data : ByteArray): RawTrip {
         Log.e("eee","ERROR: NOT DEFINE HEADER IN BYTEARRAY !!!")
         Log.e("eee","ERROR: NOT DEFINE HEADER IN BYTEARRAY !!!")
     }
+
 
     var rawTrip : ArrayList<RawTripParts> = arrayListOf<RawTripParts>()
 

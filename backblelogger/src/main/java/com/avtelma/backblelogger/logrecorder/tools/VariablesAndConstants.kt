@@ -39,8 +39,8 @@ class VariablesAndConstants {
         const val DELAY_BEFORE_NEW_TRIP = 1200L //[sec] is 20 min
         //////// For writing logs in file
         var FIRST_BYTE = 2
-        var SESSION_NAME_TIME_xyz = "-"
-        var SESSION_NAME_TIME_raw = "-"
+        var SESSION_NAME_TIME_xyz =   "-"
+        var SESSION_NAME_TIME_raw =   "-"
         //var SESSION_NAME_TIME_gps = "-"
         var NAME_OF_FOLDER_LOGS = "ItelmaBLE_Background/RawData"
 
@@ -49,6 +49,8 @@ class VariablesAndConstants {
         val SESSION_NAME = generateTimestampForFirebase()
         var MAINLOGS = ""
         var GPS_LOG = "NaN"
+
+        var IS_SUBSCRIBED = false
 
         // PostProcessing
         val GENERATE_SPECIAL_ID_FOR_EVENTS_2 = generateNameOfLogEvents()
@@ -72,7 +74,7 @@ class VariablesAndConstants {
         /**
          *  CHARTS
          */
-        var ARRAY_MAIN_CHARTS = ArrayList<FourthlyDataContainerForChartsXYZ2>()
+        var TRINITY_FOR_CHART = FourthlyDataContainerForChartsXYZ2("~",0f,0f,0f)
 
     }
 }

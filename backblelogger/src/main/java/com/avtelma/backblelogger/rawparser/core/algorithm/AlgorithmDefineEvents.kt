@@ -13,6 +13,7 @@ import RotVecCalc_P
 import VectorNorm_P
 import XYZ
 import android.util.Log
+import com.avtelma.backblelogger.AVTSIPlatform_EntryPoint.Companion.is_SCORING
 import com.avtelma.backblelogger.rawparser.service_parsing_events.models.LtLn
 import com.avtelma.backblelogger.rawparser.service_parsing_events.checkZeroOrNot
 import com.avtelma.backblelogger.rawparser.service_parsing_events.generateNameOfLogEvents
@@ -592,7 +593,12 @@ fun writePreProcLog(s: EventPreFinal) {
 
         val fileOutputStream = FileOutputStream(file,true)
         val outputStreamWriter = OutputStreamWriter(fileOutputStream)
-        outputStreamWriter.appendLine("${s.stop_1},${s.gas_break_2},${s.turn_3},${s.jump_4} ${s.condition_debug} ${s.time} ${s.stop_duration},${s.gas_break_duration},${s.turn_duration},${s.jump_duration} ${checkZeroOrNot(s.ltln.lat)},${checkZeroOrNot(s.ltln.lon)} ${s.Gas},${s.Break},${s.Turn}")
+        // check we have logs with score or not
+        if (is_SCORING){
+            outputStreamWriter.appendLine("${s.stop_1},${s.gas_break_2},${s.turn_3},${s.jump_4} ${s.condition_debug} ${s.time} ${s.stop_duration},${s.gas_break_duration},${s.turn_duration},${s.jump_duration} ${checkZeroOrNot(s.ltln.lat)},${checkZeroOrNot(s.ltln.lon)} ${s.Gas},${s.Break},${s.Turn}")
+        } else {
+            outputStreamWriter.appendLine("${s.stop_1},${s.gas_break_2},${s.turn_3},${s.jump_4} ${s.condition_debug} ${s.time} ${s.stop_duration},${s.gas_break_duration},${s.turn_duration},${s.jump_duration} ${checkZeroOrNot(s.ltln.lat)},${checkZeroOrNot(s.ltln.lon)}")
+        }
 
         outputStreamWriter.close()
         fileOutputStream.close()

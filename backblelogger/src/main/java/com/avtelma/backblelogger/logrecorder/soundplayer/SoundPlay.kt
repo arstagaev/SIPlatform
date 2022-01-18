@@ -50,6 +50,13 @@ class SoundPlay {
                     newPlaybackParams.speed = 1.0F
                     startRec.playbackParams = newPlaybackParams
                 }
+                WhatIMustSay.SUCCESS_SUBS -> {
+                    var startRec = MediaPlayer.create(context, R.raw.success_subs_wait_ride)
+                    val newPlaybackParams = PlaybackParams()
+                    newPlaybackParams.speed = 1.0F
+                    startRec.playbackParams = newPlaybackParams
+                }
+
 
                 WhatIMustSay.ATTENTION_OVERSPEED_60 -> {
                     var startRec = MediaPlayer.create(context, R.raw.overspeed_60mph)

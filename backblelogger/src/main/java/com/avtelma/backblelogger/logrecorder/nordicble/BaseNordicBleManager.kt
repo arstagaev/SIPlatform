@@ -61,13 +61,13 @@ open class BaseNordicBleManager(context: Context) :
         }
         if (isChecked) {
             enableNotifications(characteristic)
-                .done { device ->  mCallbacks.onNotified(uuid, null, "set up")           }
-                .fail { device, status ->  mCallbacks.onNotified(uuid,  null, "failed")  }
+                .done { device ->           mCallbacks.onNotified(uuid, null, "set up")  }
+                .fail { device, status ->  mCallbacks.onNotified(uuid,  null, "fail")  }
                 .enqueue()
         } else {
             disableNotifications(characteristic)
                 .done { device ->  mCallbacks.onNotified(uuid,  null, "end")}
-                .fail { device, status ->  mCallbacks.onNotified(uuid,  null, "failed")}
+                .fail { device, status ->  mCallbacks.onNotified(uuid,  null, "fail")}
                 .enqueue()
         }
     }

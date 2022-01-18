@@ -8,8 +8,8 @@ enum class ServiceState {
     STOPPED,
 }
 
-private const val name = "SPYSERVICE_KEY"
-private const val key = "SPYSERVICE_STATE"
+private const val name = "RECORD_SERVICE_KEY"
+private const val key =  "RECORD_SERVICE_STATE"
 
 fun setServiceState(context: Context, state: ServiceState) {
     val sharedPrefs = getPreferences(context)

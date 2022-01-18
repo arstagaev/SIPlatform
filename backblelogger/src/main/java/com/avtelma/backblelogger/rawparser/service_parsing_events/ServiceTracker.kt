@@ -8,8 +8,8 @@ enum class ServiceStateRawParser {
     STOPPED,
 }
 
-private const val name = "SPYSERVICE_KEY"
-private const val key = "SPYSERVICE_STATE"
+private const val name = "PARSING_SERVICE_KEY"
+private const val key =  "PARSING_SERVICE_STATE"
 
 fun setServiceState(context: Context, state: ServiceStateRawParser) {
     val sharedPrefs = getPreferences(context)

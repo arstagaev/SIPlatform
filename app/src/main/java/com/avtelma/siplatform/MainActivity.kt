@@ -287,7 +287,13 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
+        var timer = object : CountDownTimer(100000,1000){
+            override fun onTick(p0: Long) {
+                Timber.i("zzz>>>>>> ${VariablesAndConstants.TRINITY_FOR_CHART.valuesX} ${VariablesAndConstants.TRINITY_FOR_CHART.valuesZ}")
 
+            }
+            override fun onFinish() {}
+        }.start()
 
     }
 

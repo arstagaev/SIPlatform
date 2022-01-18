@@ -35,6 +35,7 @@ import com.avtelma.backblelogger.logrecorder.core.dataParse2
 import com.avtelma.backblelogger.enum.Actions
 import com.avtelma.backblelogger.enum.ConnectingStyle
 import com.avtelma.backblelogger.enum.CurrentStateOfService
+import com.avtelma.backblelogger.enum.TypeOfInputLog
 import com.avtelma.backblelogger.logrecorder.nordicble.BaseNordicBleManager
 import com.avtelma.backblelogger.rawparser.service_parsing_events.ParsingActions
 import com.avtelma.backblelogger.rawparser.service_parsing_events.ParsingEventService
@@ -49,6 +50,7 @@ import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants.Compani
 import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants.Companion.CURRENT_STATE_OF_SERVICE
 import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants.Companion.DELAY_BEFORE_NEW_TRIP
 import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants.Companion.GPS_LOG
+import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants.Companion.IS_SUBSCRIBED
 import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants.Companion.LAST_CAUGHT_NOTIFY_time
 import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants.Companion.LIST_OF_FOUND_DEVICES
 import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants.Companion.SESSION_NAME_TIME_raw
@@ -249,15 +251,25 @@ class EndlessService : Service() {
 
             if (msg != null) {
                 Log.w("cccnnn"," cccnnn msg from notif:${msg}")
-                SoundPlay().playx(this@EndlessService, WhatIMustSay.DING)
+
+                if(msg == "set up") {
+                    IS_SUBSCRIBED = true
+                    //SoundPlay().playx(this@EndlessService, WhatIMustSay.SUCCESS_SUBS)
+                    SoundPlay().playx(this@EndlessService, WhatIMustSay.DING)
+                }else if (msg == "end" || msg == "fail") {
+                    IS_SUBSCRIBED = false
+                }
+
                 Toast.makeText(applicationContext,">>> Subscribe ${msg}",Toast.LENGTH_SHORT).show()
             }
 
             if (bytes != null ) {
+
                 LAST_CAUGHT_NOTIFY_time = System.currentTimeMillis() / 1000L
 
                 var bytesX : ByteArray = bytes
 
+                // fixme need change, for econom memory
                 refreshNotification(
                     converterToXYZJustFirstElement(
                         dataParse2(bytesX)
@@ -265,6 +277,7 @@ class EndlessService : Service() {
                     false
                 )
 
+                // Write logs to file
                 addLogsIMUandGPS(SESSION_NAME_TIME_xyz,
                     converterToXYZAllArray(dataParse2(bytesX))
                 )
@@ -501,7 +514,7 @@ class EndlessService : Service() {
                                     }
                                     delay(5000)
 
-                                    refreshNotification("Need bond tablet Itelma ",true)
+                                    refreshNotification("Can`t connect, state: ${CURRENT_STATE_OF_SERVICE.name}",true)
                                     Log.d("ccc","List of bonded devices "+noFilteredDevices.toString())
                                     //startScan()
                                 }
@@ -529,9 +542,10 @@ class EndlessService : Service() {
 
                             }else if (CURRENT_STATE_OF_SERVICE == CurrentStateOfService.CONNECTED_BUT_NO_RECORDING) {
                                 //delay(12000) // i make this delay coz => phone do not have time to turn notifications in ~2 sec
-                                delay(700)
-                                justNotify()
-
+                                if (!IS_SUBSCRIBED) {
+                                    delay(700)
+                                    justNotify()
+                                }
                             }
                         }
 
@@ -556,10 +570,10 @@ class EndlessService : Service() {
                     // need for setup new trip:
                     //for e.x. if 3600s <= 100060s - 100070 {
                     // no need setup "new trip"
-                    if (DELAY_BEFORE_NEW_TRIP <= abs((System.currentTimeMillis() / 1000L)-LAST_CAUGHT_NOTIFY_time)) {
-                        generateNameOfAllLogPerSession()
-                        launchCommandInService_RAWPARSER(ParsingActions.FULL_PARSING) //fixme need to check
-                    }
+//                    if (DELAY_BEFORE_NEW_TRIP <= abs((System.currentTimeMillis() / 1000L)-LAST_CAUGHT_NOTIFY_time)) {
+//
+//                        //launchCommandInService_RAWPARSER(ParsingActions.FULL_PARSING) //fixme need to check
+//                    }
 
                     delay(20000)
                 } else {

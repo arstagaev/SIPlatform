@@ -13,6 +13,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import com.avtelma.backblelogger.AVTSIPlatform_EntryPoint.Companion.RECORD_ACTIVITY_FOR_RAWPARSER
+import com.avtelma.backblelogger.AVTSIPlatform_EntryPoint.Companion.is_ENABLE_DELETE_GARBAGE_LOGS
 import com.avtelma.backblelogger.R
 import com.avtelma.backblelogger.broadcastreceivers.CloseServiceReceiver_RawParser
 //import com.avtelma.backblelogger.broadcastreceivers.CloseServiceReceiver
@@ -264,22 +265,23 @@ class ParsingEventService : Service() {
 
 
         Log.i("lll","lll ${needToInspect.toString()}")
-        // delete garbage logs
-        runBlocking(Dispatchers.IO) {
-            launch {
-                for (i in needToInspect) {
+        if (is_ENABLE_DELETE_GARBAGE_LOGS) {
+            // delete garbage logs
+            runBlocking(Dispatchers.IO) {
+                launch {
+                    for (i in needToInspect) {
 
-                    try {
-                        clearJustOldLogs(i.filex,i.pieceFileName)
-                    } catch (e: Exception) {
-                        Log.e("ERROR ","eeerror with ${"${root1_raw}/${i}_imu_gps.txt"} //code:${e.message}")
+                        try {
+                            clearJustOldLogs(i.filex,i.pieceFileName)
+                        } catch (e: Exception) {
+                            Log.e("ERROR ","eeerror with ${"${root1_raw}/${i}_imu_gps.txt"} //code:${e.message}")
+                        }
+                        Log.i("well","well done <|> ${root1_raw}/${i}_imu_gps.txt")
+
                     }
-                    Log.i("well","well done <|> ${root1_raw}/${i}_imu_gps.txt")
-
                 }
             }
         }
-
 
         // parse needed logs
         var needToParse = noAlreadyParsedFromRawString(
@@ -394,7 +396,6 @@ class ParsingEventService : Service() {
 
                         arrayOfXYZ.removeAt(0)
 
-                        //delay(10)
                     }
                     NumberOfLine++
                 }
