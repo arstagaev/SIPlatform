@@ -26,6 +26,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
@@ -47,6 +48,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import com.avtelma.backblelogger.AVTSIPlatform_EntryPoint
@@ -203,7 +206,7 @@ class MainActivity : ComponentActivity() {
                         }
 
                         Button(onClick = {
-                            AVTSIPlatform_EntryPoint().setup(ConnectingStyle.MANUAL)
+                            AVTSIPlatform_EntryPoint.Builder.connStl(ConnectingStyle.MANUAL).build()
                             launchCommandInService(Actions.START)
 
                         }, modifier = Modifier.padding(MASTER_PADDING)) {
@@ -211,8 +214,8 @@ class MainActivity : ComponentActivity() {
                         }
 
                         Button(onClick = {
-
-                            AVTSIPlatform_EntryPoint().setup(ConnectingStyle.AUTO_BY_BOND)
+                            AVTSIPlatform_EntryPoint.Builder.connStl(ConnectingStyle.AUTO_BY_BOND).build()
+                            //AVTSIPlatform_EntryPoint().setup(ConnectingStyle.AUTO_BY_BOND)
                             launchCommandInService(Actions.START)
 
                         }, modifier = Modifier.padding(MASTER_PADDING)) {
@@ -272,10 +275,31 @@ class MainActivity : ComponentActivity() {
                             //launchCommandInService_RAWPARSER(ParsingActions.START)
                             launchCommandInService_RAWPARSER(ParsingActions.STOP)
 
-                        }, modifier = Modifier.padding(MASTER_PADDING).background(Color.White),
+                        }, modifier = Modifier
+                            .padding(MASTER_PADDING)
+                            .background(Color.White),
                             colors = ButtonDefaults.buttonColors(backgroundColor = Color.White)
                         ) {
                             Text(text = "start RawParser STOP",color = Color.Blue)
+                        }
+
+                        Row(
+                            Modifier
+                                .fillMaxWidth()
+                                .height(90.dp)
+                                .background(Color.Red)
+                                .pointerInput(Unit) {
+                                    detectTapGestures(
+                                        onPress = { },
+                                        onDoubleTap = { /* Called on Double Tap */ },
+                                        onLongPress = {
+                                            Timber.i("qqq onLongPressonLongPressonLongPressonLongPressonLongPress")
+                                        },
+                                        onTap = { Timber.i("qqq onPressonPressonPress")  }
+                                    )
+                                }
+                        ) {
+
                         }
 
 

@@ -27,7 +27,9 @@ class VariablesAndConstants {
         var CURRENT_STATE_OF_SERVICE = CurrentStateOfService.NO_CONNECTED // state of work service
         var CONNECTING_STYLE = ConnectingStyle.AUTO_BY_BOND               // connect strategy to tablet
         var TYPE_OF_INPUT_LOG = TypeOfInputLog.NO_LOG                     // is history log or realtime or another
-
+        // if activity is closed -> need make notification if we have connect,
+        // and that`s it
+        var SILENT_MODE = false
         var IS_MANUAL_LOG_RECORD = false
 
         ///////////

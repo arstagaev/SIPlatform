@@ -12,8 +12,8 @@ import android.os.*
 import android.util.Log
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
-import com.avtelma.backblelogger.AVTSIPlatform_EntryPoint.Companion.RECORD_ACTIVITY_FOR_RAWPARSER
-import com.avtelma.backblelogger.AVTSIPlatform_EntryPoint.Companion.is_ENABLE_DELETE_GARBAGE_LOGS
+import com.avtelma.backblelogger.AVTSIPlatform_EntryPoint.Builder.RECORD_ACTIVITY_FOR_RAWPARSER
+import com.avtelma.backblelogger.AVTSIPlatform_EntryPoint.Builder.is_ENABLE_DELETE_GARBAGE_LOGS
 import com.avtelma.backblelogger.R
 import com.avtelma.backblelogger.broadcastreceivers.CloseServiceReceiver_RawParser
 //import com.avtelma.backblelogger.broadcastreceivers.CloseServiceReceiver
@@ -258,6 +258,11 @@ class ParsingEventService : Service() {
     }
 
     fun parseAllFiles() { // both dont launch!
+        if (root1_raw.listFiles() == null || root1_raw.listFiles().isEmpty()) {
+            Toast.makeText(this@ParsingEventService,"Nothing to Parse\uD83D\uDE45\u200D♂️",Toast.LENGTH_LONG).show()
+            return
+        }
+
         currentStateOfParsing = STATE_OF_PARSING.PARSING
         var needToInspect = getFilesFromFolderRaw(root1_raw)//noAlreadyParsedFromRawString(getFilesFromFolderRaw(root1_raw),getFilesFromFolderPreProc(root2_preproc))
         //Log.i("lll","lll ${noAlreadyParsedFromRawString(arrayListOf("312","0312","2341"), arrayListOf("312","0312","23445"))}")
@@ -265,7 +270,7 @@ class ParsingEventService : Service() {
 
 
         Log.i("lll","lll ${needToInspect.toString()}")
-        if (is_ENABLE_DELETE_GARBAGE_LOGS) {
+        if (is_ENABLE_DELETE_GARBAGE_LOGS!!) {
             // delete garbage logs
             runBlocking(Dispatchers.IO) {
                 launch {
@@ -406,11 +411,11 @@ class ParsingEventService : Service() {
              * If only one Event defined, need him write to file
              * For define end-tail of events?
              */
-            if (SAVER_Event_Container!!.stop_duration         > THRESHOLD_STOP_DURATION
-                || SAVER_Event_Container!!.gas_break_duration > THRESHOLD_GAS_BREAK_DURATION
-                || SAVER_Event_Container!!.turn_duration      > THRESHOLD_TURN_DURATION
-            )
-            writePreProcLog(SAVER_Event_Container!!)
+//            if (SAVER_Event_Container!!.stop_duration         > THRESHOLD_STOP_DURATION
+//                || SAVER_Event_Container!!.gas_break_duration > THRESHOLD_GAS_BREAK_DURATION
+//                || SAVER_Event_Container!!.turn_duration      > THRESHOLD_TURN_DURATION
+//            )
+            //writePreProcLog(SAVER_Event_Container!!)
 
             if (styleOfParsing == STYLE_OF_PARSING.TARGET_PARSING && PROGRESS_NOTIF.toFloat() == PROGRESS_MAX.toFloat()*0.98f) {
                 currentStateOfParsing = STATE_OF_PARSING.END

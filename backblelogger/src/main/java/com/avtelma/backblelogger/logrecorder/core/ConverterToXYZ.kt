@@ -1,7 +1,7 @@
 package com.avtelma.backblelogger.logrecorder.core
 
 import android.util.Log
-import com.avtelma.backblelogger.AVTSIPlatform_EntryPoint.Companion.is_ENABLE_REALTIME_CHART
+import com.avtelma.backblelogger.AVTSIPlatform_EntryPoint.Builder.is_ENABLE_REALTIME_CHART
 import com.avtelma.backblelogger.enum.TypeOfInputLog
 import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants.Companion.TRINITY_FOR_CHART
 import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants.Companion.GPS_LOG
@@ -72,7 +72,7 @@ fun converterToXYZAllArray(rawTrip: RawTrip) : String {
                 var y =(rawTrip.RawTripParts.get(i).y).toFloat().round(6)
                 var z =(rawTrip.RawTripParts.get(i).z).toFloat().round(6)
 
-                if (is_ENABLE_REALTIME_CHART){
+                if (is_ENABLE_REALTIME_CHART!!){
                     // for charts observing
                     TRINITY_FOR_CHART = FourthlyDataContainerForChartsXYZ2("",x,y,z)
                 }

@@ -8,29 +8,84 @@ import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants.Compani
 /**
  * Entry-Point of module
  */
-class AVTSIPlatform_EntryPoint {
-    var INPUT_PREM_DEVICES = arrayListOf<String>()
-    var AIM_CONNECT_DEVICE_ADDRESS = ""
-    companion object {
-        var RECORD_ACTIVITY : Class<*>? = null
+var INPUT_PREM_DEVICES = arrayListOf<String>()
+var AIM_CONNECT_DEVICE_ADDRESS = ""
+class AVTSIPlatform_EntryPoint(
+    private val config: Builder
+) {
+
+    fun getConfig(): String{
+        return "is_ENABLE_REALTIME_CHART:${config.is_ENABLE_REALTIME_CHART}\n" +
+                "is_SCORING:${config.is_SCORING}"
+    }
+
+    companion object Builder {
+        var is_ENABLE_REALTIME_CHART      : Boolean? = null
+        var is_SCORING                    : Boolean? = null
+        var is_ENABLE_DELETE_GARBAGE_LOGS : Boolean? = null
+        var CONNECTING_STYLE              : ConnectingStyle? = null
+        var RECORD_ACTIVITY               : Class<*>? = null
         var RECORD_ACTIVITY_FOR_RAWPARSER : Class<*>? = null
 
-        var is_ENABLE_REALTIME_CHART = true
-            set(value) {
-                Log.w("sss","is_ENABLE_REALTIME_CHART configuration changed to $value")
-                field = value
-            }
-        var is_SCORING = false
-            set(value) {
-                Log.w("sss","is_SCORING configuration changed to $value")
-                field = value
-            }
-        var is_ENABLE_DELETE_GARBAGE_LOGS = false
-            set(value) {
-                Log.w("sss","is_ENABLE_DELETE_GARBAGE_LOGS configuration changed to $value")
-                field = value
-            }
+        fun realtimeChart   (isEnableChart: Boolean) = apply { is_ENABLE_REALTIME_CHART = isEnableChart }
+        fun scoring         (isScoring    : Boolean) = apply { this.is_SCORING = isScoring }
+        fun deleteNoTripLogs(delNoTripLog : Boolean) = apply { this.is_ENABLE_DELETE_GARBAGE_LOGS = delNoTripLog }
+        fun connStl         (connStyle    : ConnectingStyle) = apply { this.CONNECTING_STYLE = connStyle }
+        fun recAct          (recAct       : Class<*>?) = apply { this.RECORD_ACTIVITY = recAct }
+        fun prsAct    (recActParser : Class<*>?) = apply { this.RECORD_ACTIVITY_FOR_RAWPARSER = recActParser }
+
+        fun build(): AVTSIPlatform_EntryPoint {
+            return AVTSIPlatform_EntryPoint(this)
+        }
     }
+
+//    data class Builder(
+//        var is_ENABLE_REALTIME_CHART      : Boolean? = null,
+//        var is_SCORING                    : Boolean? = null,
+//        var is_ENABLE_DELETE_GARBAGE_LOGS : Boolean? = null,
+//        var CONNECTING_STYLE              : ConnectingStyle? = null,
+//        var RECORD_ACTIVITY               : Class<*>? = null,
+//        var RECORD_ACTIVITY_FOR_RAWPARSER : Class<*>? = null
+//    ) {
+//        fun realtimeChart   (isEnableChart: Boolean) = apply { is_ENABLE_REALTIME_CHART = isEnableChart }
+//        fun scoring         (isScoring    : Boolean) = apply { this.is_SCORING = isScoring }
+//        fun deleteNoTripLogs(delNoTripLog : Boolean) = apply { this.is_ENABLE_DELETE_GARBAGE_LOGS = delNoTripLog }
+//        fun connStl         (connStyle    : ConnectingStyle) = apply { this.CONNECTING_STYLE = connStyle }
+//        fun recAct          (recAct       : Class<*>?) = apply { this.RECORD_ACTIVITY = recAct }
+//        fun recActParser    (recActParser : Class<*>?) = apply { this.RECORD_ACTIVITY_FOR_RAWPARSER = recActParser }
+//
+//        fun build() = AVTSIPlatform_EntryPoint(
+//            is_ENABLE_REALTIME_CHART!!     ,
+//            is_SCORING!!               ,
+//            is_ENABLE_DELETE_GARBAGE_LOGS!!,
+//            CONNECTING_STYLE!!         ,
+//            RECORD_ACTIVITY              ,
+//            RECORD_ACTIVITY_FOR_RAWPARSER
+//        )
+//    }
+
+
+
+//    companion object {
+//        var RECORD_ACTIVITY : Class<*>? = null
+//        var RECORD_ACTIVITY_FOR_RAWPARSER : Class<*>? = null
+//
+//        var is_ENABLE_REALTIME_CHART = true
+//            set(value) {
+//                Log.w("sss","is_ENABLE_REALTIME_CHART configuration changed to $value")
+//                field = value
+//            }
+//        var is_SCORING = false
+//            set(value) {
+//                Log.w("sss","is_SCORING configuration changed to $value")
+//                field = value
+//            }
+//        var is_ENABLE_DELETE_GARBAGE_LOGS = false
+//            set(value) {
+//                Log.w("sss","is_ENABLE_DELETE_GARBAGE_LOGS configuration changed to $value")
+//                field = value
+//            }
+//    }
 
     fun setup( connectingStyle: ConnectingStyle){
 

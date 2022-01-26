@@ -13,7 +13,7 @@ import RotVecCalc_P
 import VectorNorm_P
 import XYZ
 import android.util.Log
-import com.avtelma.backblelogger.AVTSIPlatform_EntryPoint.Companion.is_SCORING
+import com.avtelma.backblelogger.AVTSIPlatform_EntryPoint.Builder.is_SCORING
 import com.avtelma.backblelogger.rawparser.service_parsing_events.models.LtLn
 import com.avtelma.backblelogger.rawparser.service_parsing_events.checkZeroOrNot
 import com.avtelma.backblelogger.rawparser.service_parsing_events.generateNameOfLogEvents
@@ -261,6 +261,7 @@ fun calc(arrayOfXYZinner: ArrayList<XYZ>) : EventLine {
 
                 event.gas_break_2 = ((MeanA[Forw]).sign * isReverse).toInt()
                 // need catch from array
+                // Score part:
                 event.Forw = abs(MeanA[Forw])
                 EvsumForw += abs(MeanA[Forw])
             }
@@ -275,7 +276,7 @@ fun calc(arrayOfXYZinner: ArrayList<XYZ>) : EventLine {
             if (abs(MeanA[Side]) > TURN_THRESHHOLD) {
 
                 event.turn_3  = ((MeanA[Side]).sign * isReverse).toInt()
-
+                // Score part:
                 event.Side = abs(MeanA[Side])
                 EvsumSide += abs(MeanA[Side])
             }
@@ -283,7 +284,7 @@ fun calc(arrayOfXYZinner: ArrayList<XYZ>) : EventLine {
             if (DevA[Vert] > BUMP_THRESHHOLD) {
 
                 event.jump_4 = 1
-
+                // Score part:
                 event.Vert = DevA[Vert]
                 EvsumVert += DevA[Vert]
             }
@@ -408,28 +409,39 @@ fun compareLogs2 (eventLine: EventLine, lat: Double, lon : Double) {
         /**
          * Scoring Part
          */
-        if (event.gas_break_duration > 0)
+        if (event.gas_break_duration > 0) {
             EvrawForw = EvsumForw / (event.gas_break_duration / 25 ).toDouble() // need in ranges: 8-35 but i have 9
-
-        if (event.turn_duration > 0)
+        }
+        if (event.turn_duration > 0) {
             EvrawSide = EvsumSide / (event.turn_duration / 25 ).toDouble()
-
-        if (event.jump_duration > 0)
+        }
+        if (event.jump_duration > 0) {
             EvrawVert = EvsumVert / (event.jump_duration / 25 ).toDouble()
-        Log.i("mmm","mmark: ${EvsumForw} ${EvsumSide} ${EvsumVert} |>|> ${EvrawForw} ${EvrawSide} ${EvrawVert} // ")
+        }
 
 
-        var asd = EventPreFinal(
+        Log.i("mmm","mmark: EvsumForw:${EvsumForw} EvsumSide:${EvsumSide} EvsumVert:${EvsumVert} |>|> ${EvrawForw} ${EvrawSide} ${EvrawVert} // ")
+
+
+//        var asd = EventPreFinal(
+//            last_stop_1, last_gas_break_2, last_turn_3, last_jump_4,eventLine.condition_debug,
+//            TIME -maxDuration,
+//            event.stop_duration, event.gas_break_duration, event.turn_duration, event.jump_duration,
+//            last_LtLn!!,
+//            PowerCalc(EvrawForw,8,28),
+//            PowerCalc(EvrawForw,8,35),
+//            PowerCalc(EvrawSide,7,40)
+//        )
+
+        writePreProcLog(EventPreFinal(
             last_stop_1, last_gas_break_2, last_turn_3, last_jump_4,eventLine.condition_debug,
             TIME -maxDuration,
             event.stop_duration, event.gas_break_duration, event.turn_duration, event.jump_duration,
             last_LtLn!!,
-            PowerCalc(EvrawForw,8,28),
-            PowerCalc(EvrawForw,8,35),
-            PowerCalc(EvrawSide,7,40)
-        )
-
-        writePreProcLog(asd)
+            PowerCalc(EvrawForw,2.0,12.0),
+            PowerCalc(EvrawForw,2.0,12.0),
+            PowerCalc(EvrawSide,3.0,12.0)
+        ))
 
         event.stop_duration      = 1
         event.gas_break_duration = 1
@@ -452,24 +464,27 @@ fun compareLogs2 (eventLine: EventLine, lat: Double, lon : Double) {
     ///////////////
     var maxDurationSAVER = arrayListOf<Int>(event.stop_duration, event.gas_break_duration, event.turn_duration, event.jump_duration).maxOrNull()
 
-    SAVER_Event_Container =  EventPreFinal(
-        last_stop_1, last_gas_break_2, last_turn_3, last_jump_4,eventLine.condition_debug,
-        TIME -maxDurationSAVER!!,
-        event.stop_duration, event.gas_break_duration, event.turn_duration, event.jump_duration,
-        last_LtLn!!,
-        PowerCalc(EvrawForw,8,28),
-        PowerCalc(EvrawForw,8,35),
-        PowerCalc(EvrawSide,7,40)
-    )
+//    SAVER_Event_Container =  EventPreFinal(
+//        last_stop_1, last_gas_break_2, last_turn_3, last_jump_4,eventLine.condition_debug,
+//        TIME -maxDurationSAVER!!,
+//        event.stop_duration, event.gas_break_duration, event.turn_duration, event.jump_duration,
+//        last_LtLn!!,
+//        PowerCalc(EvrawForw,8,28),
+//        PowerCalc(EvrawForw,8,35),
+//        PowerCalc(EvrawSide,7,40)
+//    )
 }
 
-fun PowerCalc(ind : Double,old_min : Int,old_max : Int): Double {
+//var MIN_SPECIAL = 100.0
+//var MINUS = 5.0
+fun PowerCalc(ind : Double,old_min : Double,old_max : Double): Double {
     var new_min=1.0;
     var new_max=10.0;
     var res = 0.0
 
+    //var new= new_max -((ind-old_min) * ((new_max-new_min) / (old_max-old_min)));
     var new= new_max -(ind-old_min) * ((new_max-new_min) / (old_max-old_min));
-    Log.i("mark","mark: ${new}")
+    Log.i("mmm","mark power calc new: ${new}")
     if(new < 1.0) {
         res=1.0;
     } else {
@@ -479,6 +494,8 @@ fun PowerCalc(ind : Double,old_min : Int,old_max : Int): Double {
             res=new;
         }
     }
+
+
     return res
 }
 //fun compareLogs3 (eventLine: EventLine, lat: Float, lon : Float) { // without any compress ,like raw may be present
@@ -594,7 +611,7 @@ fun writePreProcLog(s: EventPreFinal) {
         val fileOutputStream = FileOutputStream(file,true)
         val outputStreamWriter = OutputStreamWriter(fileOutputStream)
         // check we have logs with score or not
-        if (is_SCORING){
+        if (is_SCORING!!){
             outputStreamWriter.appendLine("${s.stop_1},${s.gas_break_2},${s.turn_3},${s.jump_4} ${s.condition_debug} ${s.time} ${s.stop_duration},${s.gas_break_duration},${s.turn_duration},${s.jump_duration} ${checkZeroOrNot(s.ltln.lat)},${checkZeroOrNot(s.ltln.lon)} ${s.Gas},${s.Break},${s.Turn}")
         } else {
             outputStreamWriter.appendLine("${s.stop_1},${s.gas_break_2},${s.turn_3},${s.jump_4} ${s.condition_debug} ${s.time} ${s.stop_duration},${s.gas_break_duration},${s.turn_duration},${s.jump_duration} ${checkZeroOrNot(s.ltln.lat)},${checkZeroOrNot(s.ltln.lon)}")

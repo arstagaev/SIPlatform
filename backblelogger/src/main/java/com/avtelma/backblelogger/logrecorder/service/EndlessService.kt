@@ -25,8 +25,10 @@ import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.avtelma.backblelogger.AIM_CONNECT_DEVICE_ADDRESS
 import com.avtelma.backblelogger.AVTSIPlatform_EntryPoint
-import com.avtelma.backblelogger.AVTSIPlatform_EntryPoint.Companion.RECORD_ACTIVITY
+import com.avtelma.backblelogger.AVTSIPlatform_EntryPoint.Builder.RECORD_ACTIVITY
+import com.avtelma.backblelogger.INPUT_PREM_DEVICES
 import com.avtelma.backblelogger.broadcastreceivers.CloseServiceReceiver_RecorderLogs
 import com.avtelma.backblelogger.broadcastreceivers.UnBondingReceiver
 import com.avtelma.backblelogger.logrecorder.core.converterToXYZAllArray
@@ -200,7 +202,6 @@ class EndlessService : Service() {
            //LIST_OF_FOUND_DEVICES.clear()
 
            for (i in ArrayList( results)) {
-
                if (i.device.name != null && i.device.name.toString().contains("itelma",true) == true) {
                    LIST_OF_FOUND_DEVICES?.add(i.device)
                    LIST_OF_FOUND_DEVICES.distinct()
@@ -213,14 +214,14 @@ class EndlessService : Service() {
            for(result in results) {
                Log.d("ccc","xxx result: "+result.device.name)
            }
-            for (i in 0 until AVTSIPlatform_EntryPoint().INPUT_PREM_DEVICES.size) {
+            for (i in 0 until INPUT_PREM_DEVICES.size) {
 
                 for (z in 0 until results.size) {
 
-                    if ( AVTSIPlatform_EntryPoint().INPUT_PREM_DEVICES[i] == results.get(z).device.address ) {
+                    if ( INPUT_PREM_DEVICES[i] == results.get(z).device.address ) {
 
                         //carsTabletsArray.add(MainConstants.PREM_DEVICES[i].nameAuto +"; \nmac address: "+ MainConstants.PREM_DEVICES[i].tabletMac)
-                        AVTSIPlatform_EntryPoint().AIM_CONNECT_DEVICE_ADDRESS = results.get(z).device.address
+                        AIM_CONNECT_DEVICE_ADDRESS = results.get(z).device.address
 
                     }
 
@@ -360,10 +361,10 @@ class EndlessService : Service() {
         override fun onDeviceReady(device: BluetoothDevice) {
             Log.i("sss"," ondeviceservice:: ${device.name}")
             // nothing to do
-            if (device != null){
+            if (device != null) {
 
 
-            }else{
+            } else {
                 //SoundPlay().playx(this@EndlessService,WhatIMustSay.ATTENTION_OVERSPEED_60)
                 sendMessage("#######Device NULL")
             }
@@ -843,8 +844,8 @@ class EndlessService : Service() {
        // .setContentIntent(pendingIntent)
         .setSmallIcon(com.avtelma.backblelogger.R.drawable.ic_baseline_bluetooth_drive_24)
         //.setTicker("Ticker text")
-        .setPriority(Notification.PRIORITY_HIGH) // for under android 26 compatibility
-        .setOnlyAlertOnce(true) // ATTENTION!!!
+        .setPriority(NotificationCompat.PRIORITY_MIN) // for under android 26 compatibility
+        //.setOnlyAlertOnce(true) // ATTENTION!!!
         //.addAction(actionX)
 
     private var builder2 = NotificationCompat.Builder(this, notificationChannelId2)
@@ -904,7 +905,7 @@ class EndlessService : Service() {
             val channel = NotificationChannel(
                 notificationChannelId,
                 "AVTelma_MainIndicatorOfWork",
-                NotificationManager.IMPORTANCE_HIGH
+                NotificationManager.IMPORTANCE_LOW
             ).let {
                 it.description = "Main Indicator of Service"
                 it.enableLights(true)
@@ -966,7 +967,7 @@ class EndlessService : Service() {
             .setContentIntent(pendingIntent)
             .setSmallIcon(com.avtelma.backblelogger.R.drawable.ic_baseline_bluetooth_drive_24)
             //.setTicker("Ticker text")
-            .setPriority(Notification.PRIORITY_HIGH) // for under android 26 compatibility
+            .setPriority(NotificationCompat.PRIORITY_LOW) // for under android 26 compatibility
             .setOnlyAlertOnce(true) // ATTENTION!!!
             .addAction(com.avtelma.backblelogger.R.drawable.ic_stop_rec,"stop",actionIntent)
             .addAction(com.avtelma.backblelogger.R.drawable.ic_stop_rec,"unbonding",actionIntent2)
