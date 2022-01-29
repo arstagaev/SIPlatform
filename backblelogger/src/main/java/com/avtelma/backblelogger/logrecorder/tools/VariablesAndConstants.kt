@@ -45,6 +45,7 @@ class VariablesAndConstants {
         var FIRST_BYTE = 2
         var SESSION_NAME_TIME_xyz =   "-"
         var SESSION_NAME_TIME_raw =   "-"
+
         //var SESSION_NAME_TIME_gps = "-"
         var NAME_OF_FOLDER_LOGS = "ItelmaBLE_Background/RawData"
 
@@ -57,9 +58,9 @@ class VariablesAndConstants {
         var IS_SUBSCRIBED = false
 
         // PostProcessing
-        val GENERATE_SPECIAL_ID_FOR_EVENTS_2 = generateNameOfLogEvents()
-        val GENERATE_SPECIAL_ID_FOR_PREPARED_LOG = generateNameOfPreparedLog()
-        val GENERATE_ALL_TRIP = generateNameOfAllTripGpsLog()
+//        val GENERATE_SPECIAL_ID_FOR_EVENTS_2 = generateNameOfLogEvents()
+//        val GENERATE_SPECIAL_ID_FOR_PREPARED_LOG = generateNameOfPreparedLog()
+//        val GENERATE_ALL_TRIP = generateNameOfAllTripGpsLog()
 
 
         // Storage of autos

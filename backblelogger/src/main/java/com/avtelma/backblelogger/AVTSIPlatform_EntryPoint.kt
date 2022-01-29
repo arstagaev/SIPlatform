@@ -20,6 +20,7 @@ class AVTSIPlatform_EntryPoint(
     }
 
     companion object Builder {
+        var CAR_LICENSE_SIGN_TAG_ADDRESS = "nan"
         var is_ENABLE_REALTIME_CHART      : Boolean?         = null
         var is_SCORING                    : Boolean?         = null
         var is_ENABLE_DELETE_GARBAGE_LOGS : Boolean?         = null
@@ -28,6 +29,7 @@ class AVTSIPlatform_EntryPoint(
         var RECORD_ACTIVITY_FOR_RAWPARSER : Class<*>?        = null
         var STARTUP_DELAY_OF_LOOPER       : Long?            = null
 
+        fun setCarTabletParameters   (carlicense : String)   = apply { CAR_LICENSE_SIGN_TAG_ADDRESS = carlicense }
         fun realtimeChart   (isEnableChart: Boolean)         = apply { is_ENABLE_REALTIME_CHART = isEnableChart }
         fun scoring         (isScoring    : Boolean)         = apply { this.is_SCORING = isScoring }
         fun deleteNoTripLogs(delNoTripLog : Boolean)         = apply { this.is_ENABLE_DELETE_GARBAGE_LOGS = delNoTripLog }

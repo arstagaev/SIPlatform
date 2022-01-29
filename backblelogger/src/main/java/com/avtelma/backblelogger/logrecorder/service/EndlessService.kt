@@ -971,25 +971,23 @@ class EndlessService : Service() {
         }
     }
 
-//    private fun refreshMainNotification(msg : String){
-//
-//        builder.setContentText("\uD83D\uDD34 Working.. | $msg")
-//        notificationManager.notify(notificationChannelId,0, builder.build());
-//    }
-     fun launchCommandInService_RAWPARSER(parsingAction : ParsingActions) {
-          Intent(this, ParsingEventService::class.java).also {
-              it.action = parsingAction.name
-              //it.putExtra("CS",6)
+    fun launchCommandInService_RAWPARSER(parsingAction : ParsingActions) {
+        Intent(this, ParsingEventService::class.java).also {
+            it.action = parsingAction.name
 
-
-              if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                   log("Starting the service in >=26 Mode")
                   startForegroundService(it)
                   return
-              }
-              log("Starting the service in < 26 Mode")
-              startService(it)
-          }
+            }
+            log("Starting the service in < 26 Mode")
+            startService(it)
+        }
+        //fixme
+
+        if (isServiceStarted) {
+            stopService()
+        }
     }
     private fun createNotification(): Notification {
 

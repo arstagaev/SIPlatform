@@ -1,6 +1,7 @@
 package com.avtelma.backblelogger.logrecorder.tools
 
 import android.os.Build
+import com.avtelma.backblelogger.AVTSIPlatform_EntryPoint.Builder.CAR_LICENSE_SIGN_TAG_ADDRESS
 //import com.avtelma.backblelogger.tools.VariablesAndConstants.Companion.SESSION_NAME_TIME_gps
 import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants.Companion.SESSION_NAME_TIME_raw
 import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants.Companion.SESSION_NAME_TIME_xyz
@@ -86,7 +87,7 @@ fun generateNameOfLogTXTFile() : String{
     var timeStamp: String = SimpleDateFormat("ddMM_HHmmss").format(Date())
 
 
-    return ""+timeStamp+"_imu_gps.txt"
+    return ""+timeStamp+"_imu_gps_${CAR_LICENSE_SIGN_TAG_ADDRESS}.txt"
 }
 
 
@@ -97,7 +98,7 @@ fun generateNameOfLogBYTESTXTFile() : String{
     var timeStamp: String = SimpleDateFormat("ddMM_HHmmss").format(Date())
 
 
-    return ""+timeStamp+"_raw_bytes.txt"
+    return ""+timeStamp+"_raw_bytes_${CAR_LICENSE_SIGN_TAG_ADDRESS}.txt"
 
 }
 
