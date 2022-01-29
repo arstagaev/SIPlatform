@@ -103,7 +103,7 @@ class EndlessService : Service() {
                 Actions.STOP.name ->   stopService()
                 Actions.UNBOND.name -> unBondDevice()  // include unbond + stopService
                 Actions.SCAN_START.name ->{
-                    CONNECTING_STYLE = ConnectingStyle.AUTO_BY_SEARCH
+                    //CONNECTING_STYLE = ConnectingStyle.AUTO_BY_SEARCH
                     startService()
                     startScan()
                 }
@@ -577,6 +577,7 @@ class EndlessService : Service() {
 
                                                 connectTo(btcs)
                                                 delay(7000)
+
                                             }
                                             INSPECTOR_SWITCHER_SCAN++
                                             refreshNotification("Make sure that ble tag is work, state: ${CURRENT_STATE_OF_SERVICE.name}",true)
