@@ -43,8 +43,10 @@ import androidx.core.content.ContextCompat
 import com.avtelma.backblelogger.AVTSIPlatform_EntryPoint
 import com.avtelma.backblelogger.enum.Actions
 import com.avtelma.backblelogger.enum.ConnectingStyle
+import com.avtelma.backblelogger.enum.CurrentStateOfService
 import com.avtelma.backblelogger.logrecorder.service.EndlessService
 import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants
+import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants.Companion.ACTION_NOW
 import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants.Companion.LIST_OF_FOUND_DEVICES
 import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants.Companion.SUPER_BLE_DEVICE
 import com.avtelma.backblelogger.logrecorder.tools.log
@@ -253,30 +255,45 @@ class MainActivity : ComponentActivity() {
                         }
                         Row {
                             Button(onClick = {
-                                launchCommandInService(Actions.NEUTRAL_CONNECTED,1)
+                                launchCommandInService(Actions.NEUTRAL_CONNECTED,this@MainActivity,1)
                                 //AVTSIPlatform_EntryPoint().setup(ConnectingStyle.AUTO_BY_BOND) Actions.TARGET_CONNECT
                                 Timber.w("bbb conn${VariablesAndConstants.CHOSEN_BLE_DEVICE?.name}")
                                 //launchCommandInService(Actions.TARGET_CONNECT)
 
                             }, modifier = Modifier.padding(MASTER_PADDING),
                                 colors = ButtonDefaults.buttonColors(backgroundColor = Color.White)) {
-                                Text(text = "A command",color = Color.Magenta)
+                                Text(text = "A",color = Color.Magenta)
                             }
                             Button(onClick = {
-                                launchCommandInService(Actions.NEUTRAL_CONNECTED,0)
+                                launchCommandInService(Actions.NEUTRAL_CONNECTED,this@MainActivity,0)
                                 //AVTSIPlatform_EntryPoint().setup(ConnectingStyle.AUTO_BY_BOND) Actions.TARGET_CONNECT
                                 Timber.w("bbb diss${VariablesAndConstants.CHOSEN_BLE_DEVICE?.name}")
 
 
                             }, modifier = Modifier.padding(MASTER_PADDING),
                                 colors = ButtonDefaults.buttonColors(backgroundColor = Color.White)) {
-                                Text(text = "B command",color = Color.Magenta)
+                                Text(text = "B",color = Color.Magenta)
                             }
-                            Button(onClick = {
 
+                            Button(onClick = {
+                                launchCommandInService(Actions.SCAN_START,this@MainActivity)
+                                VariablesAndConstants.ACTION_NOW = Actions.TARGET_CONNECT
                             }, modifier = Modifier.padding(MASTER_PADDING),
                                 colors = ButtonDefaults.buttonColors(backgroundColor = Color.White)) {
-                                Text(text = "C command",color = Color.Magenta)
+                                Text(text = "just scan tart",color = Color.Magenta)
+                            }
+
+                            Button(onClick = {
+                                if (VariablesAndConstants.CURRENT_STATE_OF_SERVICE != CurrentStateOfService.RECORDING) {
+                                    launchCommandInService(Actions.SCAN_STOP,this@MainActivity)
+                                    launchCommandInService(Actions.STOP,this@MainActivity)
+
+
+
+                                }
+                            }, modifier = Modifier.padding(MASTER_PADDING),
+                                colors = ButtonDefaults.buttonColors(backgroundColor = Color.White)) {
+                                Text(text = "stop serv scan",color = Color.Magenta)
                             }
                         }
 
@@ -347,6 +364,17 @@ class MainActivity : ComponentActivity() {
     override fun onPause() {
         super.onPause()
 
+
+    }
+
+    override fun onDestroy() {
+        if (VariablesAndConstants.CURRENT_STATE_OF_SERVICE != CurrentStateOfService.RECORDING) {
+            ACTION_NOW = Actions.FORCE_STOP
+            launchCommandInService(Actions.SCAN_STOP,this)
+            launchCommandInService(Actions.FORCE_STOP,this)
+        }
+
+        super.onDestroy()
 
     }
 
@@ -566,22 +594,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    fun launchCommandInService(action : Actions, commandCode : Int) {
 
-        Intent(this, EndlessService::class.java).also {
-            it.action = action.name
-            it.putExtra("ble_conn",commandCode)
-
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                log("Starting the service in >=26 Mode")
-                startForegroundService(it)
-                return
-            }
-            log("Starting the service in < 26 Mode")
-            startService(it)
-        }
-    }
 
     fun launchCommandInService_RAWPARSER(parsingAction : ParsingActions) {
         Intent(this, ParsingEventService::class.java).also {
@@ -614,4 +627,41 @@ class MainActivity : ComponentActivity() {
 //            startService(it)
 //        }
 //    }
+}
+
+fun launchCommandInService(action : Actions, ctx : Context) {
+    Intent(ctx, EndlessService::class.java).also {
+        it.action = action.name
+        //it.putExtra("CS",6)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            log("Starting the service in >=26 Mode")
+            ContextCompat.startForegroundService(ctx, it)
+            return
+        }
+        log("Starting the service in < 26 Mode")
+
+        ctx.startService(it)
+        //TODO: NEED IMPLEMENT CHANGE INVOCATION
+        //AppCompatActivity.startService(it)
+    }
+}
+
+
+
+fun launchCommandInService(action : Actions, ctx : Context, commandCode : Int) {
+
+    Intent(ctx, EndlessService::class.java).also {
+        it.action = action.name
+        it.putExtra("ble_conn",commandCode)
+
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            log("Starting the service in >=26 Mode")
+            ContextCompat.startForegroundService(ctx,it)
+            return
+        }
+        log("Starting the service in < 26 Mode")
+        ctx.startService(it)
+    }
 }

@@ -99,8 +99,9 @@ class EndlessService : Service() {
 
             log("using an intent with action $action")
             when (action) {
-                Actions.START.name ->  { startService() }
-                Actions.STOP.name ->   stopService()
+                Actions.START.name ->        startService()
+                Actions.STOP.name ->         stopService()
+                Actions.FORCE_STOP.name ->   stopService()
                 Actions.UNBOND.name -> unBondDevice()  // include unbond + stopService
                 Actions.SCAN_START.name ->{
                     //CONNECTING_STYLE = ConnectingStyle.AUTO_BY_SEARCH
@@ -440,7 +441,10 @@ class EndlessService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-        log("The service has been created".toUpperCase())
+        log("The recording service has been created".toUpperCase())
+        if (ACTION_NOW == Actions.FORCE_STOP) {
+            stopService()
+        }
         val notification = createNotification()
         startForeground(1, notification)
     }
@@ -901,7 +905,10 @@ class EndlessService : Service() {
         isServiceStarted = false
         setServiceState(this, ServiceState.STOPPED)
 
-        launchCommandInService_RAWPARSER(ParsingActions.FULL_PARSING)
+        if (ACTION_NOW != Actions.FORCE_STOP) {
+            launchCommandInService_RAWPARSER(ParsingActions.FULL_PARSING)
+        }
+
     }
 
     private fun unBondDevice(){
