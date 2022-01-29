@@ -568,23 +568,23 @@ class EndlessService : Service() {
                                 }
                                 else if (CONNECTING_STYLE == ConnectingStyle.AUTO_BY_SEARCH)
                                 {
-//                                    if (INSPECTOR_SWITCHER_SCAN > 7) { // more than 49 sec
-//                                        if (CLOSEST_BLE_DEVICE != null) {
-//                                            connectAndPlayNotify(CLOSEST_BLE_DEVICE!!)
-//                                            delay(7000)
-//                                        } else {
-//                                            for (btcs in alreadyBondedDevices) {
-//
-//                                                connectAndPlayNotify(btcs)
-//                                                delay(7000)
-//                                            }
-//                                            INSPECTOR_SWITCHER_SCAN++
-//                                            refreshNotification("Make sure that ble tag is work, state: ${CURRENT_STATE_OF_SERVICE.name}",true)
-//
-//                                        }
-//                                    } else {
-//                                        CONNECTING_STYLE = ConnectingStyle.AUTO_BY_BOND
-//                                    }
+                                    if (INSPECTOR_SWITCHER_SCAN > 7) { // more than 49 sec
+                                        if (CLOSEST_BLE_DEVICE != null) {
+                                            connectTo(CLOSEST_BLE_DEVICE!!)
+                                            delay(7000)
+                                        } else {
+                                            for (btcs in alreadyBondedDevices) {
+
+                                                connectTo(btcs)
+                                                delay(7000)
+                                            }
+                                            INSPECTOR_SWITCHER_SCAN++
+                                            refreshNotification("Make sure that ble tag is work, state: ${CURRENT_STATE_OF_SERVICE.name}",true)
+
+                                        }
+                                    } else {
+                                        CONNECTING_STYLE = ConnectingStyle.AUTO_BY_BOND
+                                    }
 
 
                                 }
