@@ -1,11 +1,11 @@
 package com.avtelma.backblelogger.logrecorder.tools
 
 import android.bluetooth.BluetoothDevice
-import android.bluetooth.le.ScanResult
 import com.avtelma.backblelogger.enum.Actions
 import com.avtelma.backblelogger.enum.ConnectingStyle
 import com.avtelma.backblelogger.enum.CurrentStateOfService
 import com.avtelma.backblelogger.enum.TypeOfInputLog
+import com.avtelma.backblelogger.logrecorder.models.FoundDevice
 import com.avtelma.backblelogger.ui.FourthlyDataContainerForChartsXYZ2
 //import no.nordicsemi.android.support.v18.scanner.ScanResult
 
@@ -18,9 +18,11 @@ class VariablesAndConstants {
         var CURRENT_LOG_JUST_PRESENTATION = ""
 
         // we connect in service by this bluetooth devices:
-        var SUPER_BLE_DEVICE       : BluetoothDevice? = null
-        var LIST_OF_FOUND_DEVICES : MutableSet<BluetoothDevice> = mutableSetOf()
+        var SUPER_BLE_DEVICE      : BluetoothDevice? = null
+        var CLOSEST_BLE_DEVICE    : BluetoothDevice? = null
+        var LIST_OF_FOUND_DEVICES : ArrayList<FoundDevice> = arrayListOf()
         //var FORBACKGRND_BLE_DEVICE : BluetoothDevice? = null
+        var CHOSEN_BLE_DEVICE : BluetoothDevice? = null
 
         // Can share by AVTelma entry point
         var ACTION_NOW = Actions.START                                    // external manage of service

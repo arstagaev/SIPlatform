@@ -8,5 +8,6 @@ enum class Actions {
     SUBS_AND_CONNECTED, // aim is make rec again
     SCAN_START,         // aim is start scan
     SCAN_STOP,          // aim is stop scan
+    TARGET_CONNECT,     // need for first bonding of ble tag
     MISC
 }

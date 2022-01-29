@@ -20,19 +20,21 @@ class AVTSIPlatform_EntryPoint(
     }
 
     companion object Builder {
-        var is_ENABLE_REALTIME_CHART      : Boolean? = null
-        var is_SCORING                    : Boolean? = null
-        var is_ENABLE_DELETE_GARBAGE_LOGS : Boolean? = null
+        var is_ENABLE_REALTIME_CHART      : Boolean?         = null
+        var is_SCORING                    : Boolean?         = null
+        var is_ENABLE_DELETE_GARBAGE_LOGS : Boolean?         = null
         var CONNECTING_STYLE              : ConnectingStyle? = null
-        var RECORD_ACTIVITY               : Class<*>? = null
-        var RECORD_ACTIVITY_FOR_RAWPARSER : Class<*>? = null
+        var RECORD_ACTIVITY               : Class<*>?        = null
+        var RECORD_ACTIVITY_FOR_RAWPARSER : Class<*>?        = null
+        var STARTUP_DELAY_OF_LOOPER       : Long?            = null
 
-        fun realtimeChart   (isEnableChart: Boolean) = apply { is_ENABLE_REALTIME_CHART = isEnableChart }
-        fun scoring         (isScoring    : Boolean) = apply { this.is_SCORING = isScoring }
-        fun deleteNoTripLogs(delNoTripLog : Boolean) = apply { this.is_ENABLE_DELETE_GARBAGE_LOGS = delNoTripLog }
+        fun realtimeChart   (isEnableChart: Boolean)         = apply { is_ENABLE_REALTIME_CHART = isEnableChart }
+        fun scoring         (isScoring    : Boolean)         = apply { this.is_SCORING = isScoring }
+        fun deleteNoTripLogs(delNoTripLog : Boolean)         = apply { this.is_ENABLE_DELETE_GARBAGE_LOGS = delNoTripLog }
         fun connStl         (connStyle    : ConnectingStyle) = apply { this.CONNECTING_STYLE = connStyle }
-        fun recAct          (recAct       : Class<*>?) = apply { this.RECORD_ACTIVITY = recAct }
-        fun prsAct    (recActParser : Class<*>?) = apply { this.RECORD_ACTIVITY_FOR_RAWPARSER = recActParser }
+        fun recAct          (recAct       : Class<*>?)       = apply { this.RECORD_ACTIVITY = recAct }
+        fun prsAct    (recActParser : Class<*>?)             = apply { this.RECORD_ACTIVITY_FOR_RAWPARSER = recActParser }
+        fun startupDelay    (startupDelay : Long)            = apply { this.STARTUP_DELAY_OF_LOOPER = startupDelay }
 
         fun build(): AVTSIPlatform_EntryPoint {
             return AVTSIPlatform_EntryPoint(this)

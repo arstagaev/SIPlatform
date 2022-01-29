@@ -18,6 +18,7 @@ class App : Application() {
             .connStl(ConnectingStyle.AUTO_BY_BOND)
             .recAct(MainActivity::class.java)
             .prsAct(MainActivity::class.java)
+            .startupDelay(10000L)
             .build()
         //AVTSIPlatform_EntryPoint().setup(ConnectingStyle.MANUAL)
     }

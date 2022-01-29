@@ -1,12 +1,13 @@
 package com.avtelma.siplatform
 
+// for a 'val' variable
+
+// for a `var` variable also add
+//import com.avtelma.backgroundparser.InputSessionParser.Companion.PIZDEC
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.bluetooth.BluetoothAdapter
-import android.bluetooth.le.ScanCallback
-import android.bluetooth.le.ScanResult
-import android.bluetooth.le.ScanSettings
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -29,41 +30,34 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.core.content.ContextCompat
-import com.avtelma.siplatform.ui.theme.SIPlatformTheme
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
-import java.io.OutputStreamWriter
-
-// for a 'val' variable
-import androidx.compose.runtime.getValue
-
-// for a `var` variable also add
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.avtelma.backblelogger.AVTSIPlatform_EntryPoint
 import com.avtelma.backblelogger.enum.Actions
 import com.avtelma.backblelogger.enum.ConnectingStyle
-import com.avtelma.backblelogger.rawparser.service_parsing_events.ParsingActions
-import com.avtelma.backblelogger.rawparser.service_parsing_events.ParsingEventService
 import com.avtelma.backblelogger.logrecorder.service.EndlessService
 import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants
 import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants.Companion.LIST_OF_FOUND_DEVICES
 import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants.Companion.SUPER_BLE_DEVICE
 import com.avtelma.backblelogger.logrecorder.tools.log
-//import com.avtelma.backgroundparser.InputSessionParser.Companion.PIZDEC
+import com.avtelma.backblelogger.rawparser.service_parsing_events.ParsingActions
+import com.avtelma.backblelogger.rawparser.service_parsing_events.ParsingEventService
+import com.avtelma.siplatform.ui.theme.SIPlatformTheme
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import timber.log.Timber
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+import java.io.OutputStreamWriter
+
 
 // or just
 private const val ENABLE_BLUETOOTH_REQUEST_CODE = 1
@@ -92,17 +86,17 @@ class MainActivity : ComponentActivity() {
 //    private val scanResults = mutableListOf<ScanResult>()
     var permiss = mutableStateOf(true)
 
-    var timer : CountDownTimer = object : CountDownTimer(1000000,3000){
+    var timer : CountDownTimer = object : CountDownTimer(1000000,1000){
         override fun onTick(p0: Long) {
             Timber.i("zzz !!!")
             Timber.i("zzz ${LIST_OF_FOUND_DEVICES?.joinToString()}")
             if (VariablesAndConstants.LIST_OF_FOUND_DEVICES != null ){
 
                 Timber.i("zzz ${VariablesAndConstants.LIST_OF_FOUND_DEVICES?.toString()}  name super: ${SUPER_BLE_DEVICE?.name}")
-                for (i in ArrayList( LIST_OF_FOUND_DEVICES)) {
-                    if (i.name != null && i.name.toString().contains("itelma",true) == true) {
-                        SUPER_BLE_DEVICE = i
-                        Timber.i("I founded!!!  !!!")
+                for (i in LIST_OF_FOUND_DEVICES) {
+                    if (i.bluetoothDevice.name != null && i.bluetoothDevice.name.toString().contains("itelma",true) == true) {
+                        SUPER_BLE_DEVICE = i.bluetoothDevice
+                        Timber.i("I found2!!! ${i.bluetoothDevice.name} ${i.rssi} !!!")
                     }
                 }
             }
@@ -188,7 +182,7 @@ class MainActivity : ComponentActivity() {
                 }
                 AnimatedVisibility(visible = !visibleOfPermissions) {
 
-                    Column(modifier = Modifier.fillMaxSize(),) {
+                    Column(modifier = Modifier.fillMaxSize()) {
                         Button(onClick = {
 
                             commonDocumentDirPath("Rock")
@@ -214,7 +208,7 @@ class MainActivity : ComponentActivity() {
                         }
 
                         Button(onClick = {
-                            AVTSIPlatform_EntryPoint.Builder.connStl(ConnectingStyle.AUTO_BY_BOND).build()
+                                AVTSIPlatform_EntryPoint.Builder.connStl(ConnectingStyle.AUTO_BY_BOND).build()
                             //AVTSIPlatform_EntryPoint().setup(ConnectingStyle.AUTO_BY_BOND)
                             launchCommandInService(Actions.START)
 
@@ -257,6 +251,35 @@ class MainActivity : ComponentActivity() {
                         }, modifier = Modifier.padding(MASTER_PADDING)) {
                             Text(text = "make, SUBS_AND_CONNECTED",color = Color.Blue)
                         }
+                        Row {
+                            Button(onClick = {
+                                launchCommandInService(Actions.NEUTRAL_CONNECTED,1)
+                                //AVTSIPlatform_EntryPoint().setup(ConnectingStyle.AUTO_BY_BOND) Actions.TARGET_CONNECT
+                                Timber.w("bbb conn${VariablesAndConstants.CHOSEN_BLE_DEVICE?.name}")
+                                //launchCommandInService(Actions.TARGET_CONNECT)
+
+                            }, modifier = Modifier.padding(MASTER_PADDING),
+                                colors = ButtonDefaults.buttonColors(backgroundColor = Color.White)) {
+                                Text(text = "A command",color = Color.Magenta)
+                            }
+                            Button(onClick = {
+                                launchCommandInService(Actions.NEUTRAL_CONNECTED,0)
+                                //AVTSIPlatform_EntryPoint().setup(ConnectingStyle.AUTO_BY_BOND) Actions.TARGET_CONNECT
+                                Timber.w("bbb diss${VariablesAndConstants.CHOSEN_BLE_DEVICE?.name}")
+
+
+                            }, modifier = Modifier.padding(MASTER_PADDING),
+                                colors = ButtonDefaults.buttonColors(backgroundColor = Color.White)) {
+                                Text(text = "B command",color = Color.Magenta)
+                            }
+                            Button(onClick = {
+
+                            }, modifier = Modifier.padding(MASTER_PADDING),
+                                colors = ButtonDefaults.buttonColors(backgroundColor = Color.White)) {
+                                Text(text = "C command",color = Color.Magenta)
+                            }
+                        }
+
                         Divider(color = Color.Blue, thickness = 1.dp,modifier = Modifier.padding(5.dp))
                         Divider(color = Color.Blue, thickness = 1.dp,modifier = Modifier.padding(5.dp))
 
@@ -295,7 +318,7 @@ class MainActivity : ComponentActivity() {
                                         onLongPress = {
                                             Timber.i("qqq onLongPressonLongPressonLongPressonLongPressonLongPress")
                                         },
-                                        onTap = { Timber.i("qqq onPressonPressonPress")  }
+                                        onTap = { Timber.i("qqq onPressonPressonPress") }
                                     )
                                 }
                         ) {
@@ -531,6 +554,23 @@ class MainActivity : ComponentActivity() {
         Intent(this, EndlessService::class.java).also {
             it.action = action.name
             //it.putExtra("CS",6)
+
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                log("Starting the service in >=26 Mode")
+                startForegroundService(it)
+                return
+            }
+            log("Starting the service in < 26 Mode")
+            startService(it)
+        }
+    }
+
+    fun launchCommandInService(action : Actions, commandCode : Int) {
+
+        Intent(this, EndlessService::class.java).also {
+            it.action = action.name
+            it.putExtra("ble_conn",commandCode)
 
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

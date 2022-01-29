@@ -31,5 +31,25 @@ class Converters {
             }
             return data
         }
+
+        fun searchCompareElements(arrayList1 : ArrayList<Int>, arrayList2 : ArrayList<Int>): Set<Int> {
+
+            var output = arrayListOf<Int>()
+
+            for (i in arrayList1) {
+
+                for (z in arrayList2) {
+                    if (i == z) {
+                        output.add(i)
+                    }
+                }
+
+            }
+            val foo: Set<Int> = HashSet<Int>(output)
+
+
+            println("> ${foo.joinToString()}")
+            return foo
+        }
     }
 }
