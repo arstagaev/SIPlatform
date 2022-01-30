@@ -1,8 +1,6 @@
 package com.avtelma.backblelogger
 
-import android.util.Log
 import com.avtelma.backblelogger.enum.ConnectingStyle
-import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants.Companion.CONNECTING_STYLE
 
 
 /**
@@ -24,7 +22,7 @@ class AVTSIPlatform_EntryPoint(
         var is_ENABLE_REALTIME_CHART      : Boolean?         = null
         var is_SCORING                    : Boolean?         = null
         var is_ENABLE_DELETE_GARBAGE_LOGS : Boolean?         = null
-        var CONNECTING_STYLE              : ConnectingStyle? = null
+        var CONNECTING_STYLEinp              : ConnectingStyle? = null
         var RECORD_ACTIVITY               : Class<*>?        = null
         var RECORD_ACTIVITY_FOR_RAWPARSER : Class<*>?        = null
         var STARTUP_DELAY_OF_LOOPER       : Long?            = null
@@ -33,7 +31,7 @@ class AVTSIPlatform_EntryPoint(
         fun realtimeChart   (isEnableChart: Boolean)         = apply { is_ENABLE_REALTIME_CHART = isEnableChart }
         fun scoring         (isScoring    : Boolean)         = apply { this.is_SCORING = isScoring }
         fun deleteNoTripLogs(delNoTripLog : Boolean)         = apply { this.is_ENABLE_DELETE_GARBAGE_LOGS = delNoTripLog }
-        fun connStl         (connStyle    : ConnectingStyle) = apply { this.CONNECTING_STYLE = connStyle }
+        fun connStl         (connStyle    : ConnectingStyle) = apply { this.CONNECTING_STYLEinp = connStyle }
         fun recAct          (recAct       : Class<*>?)       = apply { this.RECORD_ACTIVITY = recAct }
         fun prsAct    (recActParser : Class<*>?)             = apply { this.RECORD_ACTIVITY_FOR_RAWPARSER = recActParser }
         fun startupDelay    (startupDelay : Long)            = apply { this.STARTUP_DELAY_OF_LOOPER = startupDelay }
@@ -93,7 +91,7 @@ class AVTSIPlatform_EntryPoint(
 
     fun setup( connectingStyle: ConnectingStyle){
 
-        CONNECTING_STYLE = connectingStyle
+        CONNECTING_STYLEinp = connectingStyle
         //InputSession.RECORD_ACTIVITY = recActivity
     }
 

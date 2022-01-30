@@ -47,6 +47,7 @@ import com.avtelma.backblelogger.enum.CurrentStateOfService
 import com.avtelma.backblelogger.logrecorder.service.EndlessService
 import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants
 import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants.Companion.ACTION_NOW
+import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants.Companion.CONNECTING_STYLE
 import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants.Companion.LIST_OF_FOUND_DEVICES
 import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants.Companion.SUPER_BLE_DEVICE
 import com.avtelma.backblelogger.logrecorder.tools.log
@@ -295,6 +296,31 @@ class MainActivity : ComponentActivity() {
                                 colors = ButtonDefaults.buttonColors(backgroundColor = Color.White)) {
                                 Text(text = "stop serv scan",color = Color.Magenta)
                             }
+                        }
+                        /////
+                        Row {
+                            Button(onClick = {
+                                CONNECTING_STYLE = ConnectingStyle.AUTO_BY_SEARCH
+                                ACTION_NOW = Actions.START
+                                launchCommandInService(Actions.START)
+                                //launchCommandInService(Actions.TARGET_CONNECT)
+
+                            }, modifier = Modifier.padding(MASTER_PADDING),
+                                colors = ButtonDefaults.buttonColors(backgroundColor = Color.White)) {
+                                Text(text = "F",color = Color.Red)
+                            }
+                            Button(onClick = {
+                                launchCommandInService(Actions.NEUTRAL_CONNECTED,this@MainActivity,0)
+                                //AVTSIPlatform_EntryPoint().setup(ConnectingStyle.AUTO_BY_BOND) Actions.TARGET_CONNECT
+                                Timber.w("bbb diss${VariablesAndConstants.CHOSEN_BLE_DEVICE?.name}")
+
+
+                            }, modifier = Modifier.padding(MASTER_PADDING),
+                                colors = ButtonDefaults.buttonColors(backgroundColor = Color.White)) {
+                                Text(text = "G",color = Color.Red)
+                            }
+
+
                         }
 
                         Divider(color = Color.Blue, thickness = 1.dp,modifier = Modifier.padding(5.dp))

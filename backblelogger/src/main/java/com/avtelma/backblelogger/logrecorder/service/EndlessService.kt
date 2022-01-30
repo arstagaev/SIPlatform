@@ -132,7 +132,7 @@ class EndlessService : Service() {
 
                     Log.i("zzz","zzz ${intent.extras?.getInt("CS")}")
                     when(intent.extras?.getInt("CS")) { // Command to Service
-                        1 -> {  }
+                        1 -> { connectTo(CHOSEN_BLE_DEVICE!!)  }
                         6 -> { startScan() }
                         7 -> { stopScan()  }
 
@@ -572,7 +572,8 @@ class EndlessService : Service() {
                                 }
                                 else if (CONNECTING_STYLE == ConnectingStyle.AUTO_BY_SEARCH)
                                 {
-                                    if (INSPECTOR_SWITCHER_SCAN > 7) { // more than 49 sec
+                                    if (INSPECTOR_SWITCHER_SCAN < 7) { // more than 49 sec
+                                        Log.d("ccc",">>ccclosest ${CLOSEST_BLE_DEVICE?.name} ")
                                         if (CLOSEST_BLE_DEVICE != null) {
                                             connectTo(CLOSEST_BLE_DEVICE!!)
                                             delay(7000)
@@ -583,6 +584,7 @@ class EndlessService : Service() {
                                                 delay(7000)
 
                                             }
+                                            delay(2000)
                                             INSPECTOR_SWITCHER_SCAN++
                                             refreshNotification("Make sure that ble tag is work, state: ${CURRENT_STATE_OF_SERVICE.name}",true)
 
@@ -623,6 +625,24 @@ class EndlessService : Service() {
                         }
 
                         Actions.NEUTRAL_CONNECTED -> {
+                            if (INSPECTOR_SWITCHER_SCAN > 7) { // more than 49 sec
+                                if (CLOSEST_BLE_DEVICE != null) {
+                                    connectTo(CLOSEST_BLE_DEVICE!!)
+                                    delay(7000)
+                                } else {
+                                    for (btcs in alreadyBondedDevices) {
+
+                                        connectTo(btcs)
+                                        delay(7000)
+
+                                    }
+                                    INSPECTOR_SWITCHER_SCAN++
+                                    refreshNotification("Make sure that ble tag is work, state: ${CURRENT_STATE_OF_SERVICE.name}",true)
+
+                                }
+                            } else {
+                                CONNECTING_STYLE = ConnectingStyle.AUTO_BY_BOND
+                            }
                             Log.i("ccc","ccc NOW is Actions.NEUTRAL_CONNECTED")
                         }
                         Actions.TARGET_CONNECT -> {
