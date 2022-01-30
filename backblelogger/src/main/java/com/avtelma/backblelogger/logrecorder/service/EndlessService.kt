@@ -580,8 +580,13 @@ class EndlessService : Service() {
                                         } else {
                                             for (btcs in alreadyBondedDevices) {
 
-                                                connectTo(btcs)
-                                                delay(7000)
+                                                if (btcs.name.toString().contains("itelma",true) == true){
+                                                    Log.i("cccc",">>> again connect ")
+
+                                                    connectTo(btcs)
+                                                    delay(7000)
+
+                                                }
 
                                             }
                                             delay(2000)
@@ -811,6 +816,10 @@ class EndlessService : Service() {
 
 
     fun connectTo(device: BluetoothDevice) {
+        if (ACTION_NOW == Actions.TARGET_CONNECT) {
+            Log.w("rrr","we return from connect !!! coz: ${ACTION_NOW.name}")
+            return
+        }
         if (device == null) {
             Log.e("eee","deviceBLE is ${device.name}")
             return

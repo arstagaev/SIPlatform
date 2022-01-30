@@ -1,6 +1,7 @@
 package com.avtelma.backblelogger.rawparser.service_parsing_events
 
 import android.util.Log
+import com.avtelma.backblelogger.rawparser.tools.VariablesAndConstRawParser
 import java.io.File
 import kotlin.collections.ArrayList
 
@@ -38,6 +39,9 @@ fun getFilesFromFolderRaw(root : File) : ArrayList<PairFileAndName> {
 }
 
 fun getFilesFromFolderPreProc(root : File) : ArrayList<PairFileAndName> {
+    if (!VariablesAndConstRawParser.root2_preproc.exists()) {
+        VariablesAndConstRawParser.root2_preproc.mkdirs()
+    }
     var arrayListOfFiles = arrayListOf<String>()
 
     var arrayOfFiles_output = arrayListOf<PairFileAndName>()

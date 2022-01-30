@@ -262,6 +262,10 @@ class ParsingEventService : Service() {
             Toast.makeText(this@ParsingEventService,"Nothing to Parse\uD83D\uDE45\u200D♂️",Toast.LENGTH_LONG).show()
             return
         }
+        if (!root2_preproc.exists()) {
+            root2_preproc.mkdirs()
+        }
+
 
         currentStateOfParsing = STATE_OF_PARSING.PARSING
         var needToInspect = getFilesFromFolderRaw(root1_raw)//noAlreadyParsedFromRawString(getFilesFromFolderRaw(root1_raw),getFilesFromFolderPreProc(root2_preproc))

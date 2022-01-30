@@ -395,6 +395,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onDestroy() {
         if (VariablesAndConstants.CURRENT_STATE_OF_SERVICE != CurrentStateOfService.RECORDING) {
+
             ACTION_NOW = Actions.FORCE_STOP
             launchCommandInService(Actions.SCAN_STOP,this)
             launchCommandInService(Actions.FORCE_STOP,this)

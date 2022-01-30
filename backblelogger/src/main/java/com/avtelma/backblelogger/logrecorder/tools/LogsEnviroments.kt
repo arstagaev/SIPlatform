@@ -73,7 +73,7 @@ fun generateNameOfAllTripGpsLog() : String{
 
 
 fun generateNameOfAllLogPerSession(){
-    TIMESTAMP_FOR_LOG = generateJustTimeStamp() // for repeatable record per session of whole application
+    TIMESTAMP_FOR_LOG     = generateJustTimeStamp() // for repeatable record per session of whole application
     SESSION_NAME_TIME_xyz = generateNameOfLogTXTFile()
     SESSION_NAME_TIME_raw = generateNameOfLogBYTESTXTFile()
     //SESSION_NAME_TIME_gps = generateNameOfLogGPS()
