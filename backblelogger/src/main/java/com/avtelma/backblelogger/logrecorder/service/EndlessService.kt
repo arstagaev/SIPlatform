@@ -459,8 +459,15 @@ class EndlessService : Service() {
     override fun onTaskRemoved(rootIntent: Intent) {
         val restartServiceIntent = Intent(applicationContext, EndlessService::class.java).also {
             it.setPackage(packageName)
-        };
-        val restartServicePendingIntent: PendingIntent = PendingIntent.getService(this, 1, restartServiceIntent, PendingIntent.FLAG_ONE_SHOT);
+        }
+        var restartServicePendingIntent: PendingIntent? = null
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) { // FLAG_MUTABLE
+            restartServicePendingIntent = PendingIntent.getService(this, 1, restartServiceIntent, PendingIntent.FLAG_IMMUTABLE);
+
+        }else {
+            restartServicePendingIntent = PendingIntent.getService(this, 1, restartServiceIntent, PendingIntent.FLAG_ONE_SHOT);
+
+        }
         applicationContext.getSystemService(Context.ALARM_SERVICE);
         val alarmService: AlarmManager = applicationContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager;
         alarmService.set(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime() + 1000, restartServicePendingIntent)
@@ -501,8 +508,7 @@ class EndlessService : Service() {
             }
 
 
-        var totalItems = 0
-        //var times = 0
+
         manager = getSystemService(BLUETOOTH_SERVICE) as BluetoothManager
 
         locationTask()
@@ -1066,31 +1072,55 @@ class EndlessService : Service() {
             //RECORD_ACTIVITY = MainActivity::class.java
         }
         Log.i("ccc","ccclass  ${RECORD_ACTIVITY?.name}")
-        val pendingIntent: PendingIntent = Intent(this,RECORD_ACTIVITY).let { notificationIntent ->
-            PendingIntent.getActivity(this, 0, notificationIntent, 0)
+        var pendingIntent: PendingIntent? = null
+        var actionIntent : PendingIntent? = null
+        var actionIntent2: PendingIntent? = null
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            pendingIntent = Intent(this,RECORD_ACTIVITY).let { notificationIntent ->
+                PendingIntent.getActivity(this, 0, notificationIntent,  PendingIntent.FLAG_MUTABLE)
+            }
+            actionIntent = PendingIntent.getBroadcast(
+                this,
+                0, Intent(this, CloseServiceReceiver_RecorderLogs::class.java), PendingIntent.FLAG_MUTABLE
+            )
+            actionIntent2 = PendingIntent.getBroadcast(
+                this,
+                0, Intent(this, UnBondingReceiver::class.java), PendingIntent.FLAG_MUTABLE
+            )
+
+        } else {
+            actionIntent = PendingIntent.getBroadcast(
+                this,
+                0, Intent(this, CloseServiceReceiver_RecorderLogs::class.java), PendingIntent.FLAG_UPDATE_CURRENT
+            )
+            actionIntent2 = PendingIntent.getBroadcast(
+                this,
+                0, Intent(this, UnBondingReceiver::class.java), PendingIntent.FLAG_UPDATE_CURRENT
+            )
+
+            pendingIntent = Intent(this,RECORD_ACTIVITY).let { notificationIntent ->
+                PendingIntent.getActivity(this, 0, notificationIntent,  0)
+            }
+
         }
 
-//        builder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) Notification.Builder(
-//            this,
-//            notificationChannelId
-//        ) else Notification.Builder(this)
 
-        //////////
-        val broadcastIntent = Intent(this, CloseServiceReceiver_RecorderLogs::class.java)
-        //broadcastIntent.putExtra("toastMessage", android.R.id.message)
 
-        val actionIntent = PendingIntent.getBroadcast(
-            this,
-            0, Intent(this, CloseServiceReceiver_RecorderLogs::class.java), PendingIntent.FLAG_UPDATE_CURRENT
-        )
-        val actionIntent2 = PendingIntent.getBroadcast(
-            this,
-            0, Intent(this, UnBondingReceiver::class.java), PendingIntent.FLAG_UPDATE_CURRENT
-        )
-        var actionX: NotificationCompat.Action =
-            NotificationCompat.Action.Builder(com.avtelma.backblelogger.R.drawable.ic_stop_rec, "Stop", actionIntent).build()
-//        val remoteViews = RemoteViews(packageName, android.R.layout.activity_list_item)
-//        remoteViews.setTextViewText(R.id.text,"d")
+////        builder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) Notification.Builder(
+////            this,
+////            notificationChannelId
+////        ) else Notification.Builder(this)
+//
+//        //////////
+//        val broadcastIntent = Intent(this, CloseServiceReceiver_RecorderLogs::class.java)
+//        //broadcastIntent.putExtra("toastMessage", android.R.id.message)
+//
+//
+//        var actionX: NotificationCompat.Action =
+//            NotificationCompat.Action.Builder(com.avtelma.backblelogger.R.drawable.ic_stop_rec, "Stop", actionIntent).build()
+////        val remoteViews = RemoteViews(packageName, android.R.layout.activity_list_item)
+////        remoteViews.setTextViewText(R.id.text,"d")
 
 
         return builder

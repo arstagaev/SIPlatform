@@ -134,15 +134,7 @@ class MainActivity : ComponentActivity() {
 //        }
 
 
-        if (bluetoothAdapter == null) {
-            // Device doesn't support Bluetooth
-            Toast.makeText(applicationContext,"Device doesn't support Bluetooth",Toast.LENGTH_LONG).show()
-        } else {
-            if (bluetoothAdapter?.isEnabled == false) {
-                val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-                startActivityForResult(enableBtIntent!!, REQUEST_ENABLE_BT)
-            }
-        }
+
 
 
 
@@ -156,6 +148,7 @@ class MainActivity : ComponentActivity() {
                 1
             )
         }
+
 
         setContent {
             var visibleOfPermissions by remember { permiss }
@@ -336,7 +329,6 @@ class MainActivity : ComponentActivity() {
                             Text(text = "start RawParser FULL_PARSING",color = Color.Blue)
                         }
                         Button(onClick = {
-
                             //AVTSIPlatform_EntryPoint().setup(ConnectingStyle.AUTO_BY_BOND)
                             //launchCommandInService_RAWPARSER(ParsingActions.START)
                             launchCommandInService_RAWPARSER(ParsingActions.STOP)
@@ -377,6 +369,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
+        //checkPermissionBLE()
         var timer = object : CountDownTimer(100000,1000){
             override fun onTick(p0: Long) {
                 Timber.i("zzz>>>>>> ${VariablesAndConstants.TRINITY_FOR_CHART.valuesX} ${VariablesAndConstants.TRINITY_FOR_CHART.valuesZ}")
@@ -416,6 +409,25 @@ class MainActivity : ComponentActivity() {
                 if (resultCode != Activity.RESULT_OK) {
                     promptEnableBluetooth()
                 }
+            }
+        }
+    }
+
+    fun checkPermissionBLE(): Boolean {
+        if (bluetoothAdapter == null) {
+
+            // Device doesn't support Bluetooth
+            Toast.makeText(applicationContext,"Device doesn't support Bluetooth",Toast.LENGTH_LONG).show()
+            return false
+        } else {
+            if (bluetoothAdapter?.isEnabled == false) {
+                val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+                startActivityForResult(enableBtIntent!!, REQUEST_ENABLE_BT)
+            }
+            if (bluetoothAdapter?.isEnabled == false) {
+                return false
+            }else {
+                return true
             }
         }
     }

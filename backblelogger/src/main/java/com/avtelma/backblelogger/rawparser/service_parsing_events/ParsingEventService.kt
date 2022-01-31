@@ -12,10 +12,13 @@ import android.os.*
 import android.util.Log
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
+import com.avtelma.backblelogger.AVTSIPlatform_EntryPoint
 import com.avtelma.backblelogger.AVTSIPlatform_EntryPoint.Builder.RECORD_ACTIVITY_FOR_RAWPARSER
 import com.avtelma.backblelogger.AVTSIPlatform_EntryPoint.Builder.is_ENABLE_DELETE_GARBAGE_LOGS
 import com.avtelma.backblelogger.R
 import com.avtelma.backblelogger.broadcastreceivers.CloseServiceReceiver_RawParser
+import com.avtelma.backblelogger.broadcastreceivers.CloseServiceReceiver_RecorderLogs
+import com.avtelma.backblelogger.broadcastreceivers.UnBondingReceiver
 //import com.avtelma.backblelogger.broadcastreceivers.CloseServiceReceiver
 import com.avtelma.backblelogger.rawparser.core.algorithm.*
 
@@ -138,7 +141,14 @@ class ParsingEventService : Service() {
         val restartServiceIntent = Intent(applicationContext, ParsingEventService::class.java).also {
             it.setPackage(packageName)
         };
-        val restartServicePendingIntent: PendingIntent = PendingIntent.getService(this, 1, restartServiceIntent, PendingIntent.FLAG_ONE_SHOT);
+        var restartServicePendingIntent: PendingIntent? = null
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) { // FLAG_MUTABLE
+            restartServicePendingIntent = PendingIntent.getService(this, 1, restartServiceIntent, PendingIntent.FLAG_IMMUTABLE);
+
+        }else {
+            restartServicePendingIntent = PendingIntent.getService(this, 1, restartServiceIntent, PendingIntent.FLAG_ONE_SHOT);
+
+        }
         applicationContext.getSystemService(Context.ALARM_SERVICE);
         val alarmService: AlarmManager = applicationContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager;
         alarmService.set(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime() + 1000, restartServicePendingIntent)
@@ -214,7 +224,7 @@ class ParsingEventService : Service() {
                             //PROGRESS_NOTIF++
                         } else {
                             curProgress = 0
-                            builder.setContentText("ready to work")
+                            builder.setContentText("already parsed")
                             notificationManager.notify(2, builder.build())
                             delay(2000)
                             stopService()
@@ -552,17 +562,35 @@ class ParsingEventService : Service() {
             //notificationManager.createNotificationChannel(channel2)
         }
 
-        val pendingIntent: PendingIntent = Intent(this,RECORD_ACTIVITY_FOR_RAWPARSER).let { notificationIntent ->
-            PendingIntent.getActivity(this, 0, notificationIntent, 0)
-        }
 
+
+        var pendingIntent: PendingIntent? = null
+        var actionIntent : PendingIntent?=  null
         //////////
         val broadcastIntent = Intent(this, CloseServiceReceiver_RawParser::class.java)
 
-        val actionIntent = PendingIntent.getBroadcast(
-            this,
-            0, Intent(this, CloseServiceReceiver_RawParser::class.java), PendingIntent.FLAG_UPDATE_CURRENT
-        )
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) { // FLAG_MUTABLE
+            pendingIntent = Intent(this,RECORD_ACTIVITY_FOR_RAWPARSER).let { notificationIntent ->
+                PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_MUTABLE)
+            }
+
+            actionIntent = PendingIntent.getBroadcast(
+                this,
+                0, Intent(this, CloseServiceReceiver_RawParser::class.java), PendingIntent.FLAG_MUTABLE
+            )
+
+        } else {
+            pendingIntent = Intent(this,RECORD_ACTIVITY_FOR_RAWPARSER).let { notificationIntent ->
+                PendingIntent.getActivity(this, 0, notificationIntent, 0)
+            }
+
+            actionIntent = PendingIntent.getBroadcast(
+                this,
+                0, Intent(this, CloseServiceReceiver_RawParser::class.java), PendingIntent.FLAG_UPDATE_CURRENT
+            )
+
+        }
 //        val actionIntent2 = PendingIntent.getBroadcast(
 //            this,
 //            0, Intent(this, UnBondingReceiver::class.java), PendingIntent.FLAG_UPDATE_CURRENT
