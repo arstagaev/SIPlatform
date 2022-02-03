@@ -124,7 +124,7 @@ var EvsumVert = 0.0
 var event = EventLine(0,0,0,0, CONDITION,0,0,0,0,0.0,0.0,0.0)
 //var CONDITION = -1
 var BIG_BUFFER : String = ""
-fun calc(arrayOfXYZinner: ArrayList<XYZ>) : EventLine {
+fun rawToEventLine(arrayOfXYZinner: ArrayList<XYZ>) : EventLine {
     var chunk_A = arrayOfXYZinner // vvariables 25
     logMB("start of cycle >>>>>>>>>>>>>>>> ${chunk_A.joinToString()}")
 
@@ -307,31 +307,6 @@ fun calc(arrayOfXYZinner: ArrayList<XYZ>) : EventLine {
 
     logMB("|||${event.stop_1},${event.gas_break_2},${event.turn_3},${event.jump_4},${event.condition_debug}||| Cond: $CONDITION : $CURRENT_POS  Q_Hor:${Q_Hor[0]} ${Q_Hor[1]} ${Q_Hor[2]} ${Q_Hor[3]}; Q_Forw:${Q_Forw[0]} ${Q_Forw[1]} ${Q_Forw[2]} ${Q_Forw[3]}; MeanA:[${MeanA[0]} ${MeanA[1]} ${MeanA[2]}] MeanA_mod:$MeanA_mod* DevA:[${DevA[0]} ${DevA[1]} ${DevA[2]}]; *${DevA_mod.toString()}* ")
     return event
-
-
-//        if (arrayListOf<Int>(
-//                event.stop_1,
-//                event.gas_break_2,
-//                event.turn_3,
-//                event.jump_4      ) == lastChapter && howManyRepeat < 5) {
-//            addLogEve("${GENERATE_SPECIAL_ID_FOR_EVENTS_2}","${event.stop_1},${event.gas_break_2},${event.turn_3},${event.jump_4},${event.condition_debug}")
-//
-//            lastChapter = arrayListOf<Int>(0,0,0,0)
-//            howManyRepeat++
-//        }else if (arrayListOf<Int>(
-//                event.stop_1,
-//                event.gas_break_2,
-//                event.turn_3,
-//                event.jump_4) != lastChapter) {
-//            addLogEve("${GENERATE_SPECIAL_ID_FOR_EVENTS_2}","${event.stop_1},${event.gas_break_2},${event.turn_3},${event.jump_4},${event.condition_debug}")
-//
-//            howManyRepeat = 0
-//        }
-    //addLogsEvents("${GENERATE_SPECIAL_ID_FOR_EVENTS_2}","${event.stop_1},${event.gas_break_2},${event.turn_3},${event.jump_4},${event.condition_debug}")
-
-    //bw.append("\n${event.stop_1},${event.gas_break_2},${event.turn_3},${event.jump_4},${event.condition_debug}")
-
-
 }
 
 var TIME = 0
@@ -351,28 +326,28 @@ var EvrawForw = 0.0
 var EvrawSide = 0.0
 var EvrawVert = 0.0
 
-fun compareLogs2 (eventLine: EventLine, lat: Double, lon : Double) {
-    TIME++
+fun findDurationAndScoreOfEvents (eventLine: EventLine, lat: Double, lon : Double) {
+    TIME++ // time scale ~[1/25s]
     needPublishLog = false
-    var needGetOff = false
+    var notEnoughLong = false
 
 
     //stop_1
     //gas_break_2
     //turn_3
     //jump_4
-    if (last_stop_1 == eventLine.stop_1) {
-        event.stop_duration++
-    } else if (event.stop_duration < THRESHOLD_STOP_DURATION) {
-        needGetOff = true
-    } else {
+    if (last_stop_1 == eventLine.stop_1) { // if event is resume and not ended
+        event.stop_duration++ // and we continue duration
+    } else if (event.stop_duration < THRESHOLD_STOP_DURATION) {  // if duration of event not enough long
+        notEnoughLong = true
+    } else { // if duration is normal, and new event is appear, we can publish event (with duration & score) to file
         needPublishLog = true
     }
 
     if (last_gas_break_2 == eventLine.gas_break_2 && !needPublishLog) {
         event.gas_break_duration++
     } else if (event.gas_break_duration < THRESHOLD_GAS_BREAK_DURATION) {
-        needGetOff = true
+        notEnoughLong = true
     } else {
         needPublishLog = true
     }
@@ -380,7 +355,7 @@ fun compareLogs2 (eventLine: EventLine, lat: Double, lon : Double) {
     if (last_turn_3 == eventLine.turn_3 && !needPublishLog) {
         event.turn_duration++
     } else if (event.turn_duration < THRESHOLD_TURN_DURATION) {
-        needGetOff = true
+        notEnoughLong = true
     }  else {
         needPublishLog = true
     }
@@ -388,7 +363,7 @@ fun compareLogs2 (eventLine: EventLine, lat: Double, lon : Double) {
     if (last_jump_4 == eventLine.jump_4 && !needPublishLog) {
         event.jump_duration++
     } else if (event.jump_duration < THRESHOLD_JUMP_DURATION) {
-        needGetOff = true
+        notEnoughLong = true
     } else {
         needPublishLog = true
     }
@@ -400,12 +375,14 @@ fun compareLogs2 (eventLine: EventLine, lat: Double, lon : Double) {
     Log.i("ccc","ccc needPublishLog:$needPublishLog|| event:st${eventLine.stop_duration}gs${eventLine.gas_break_duration}tr${eventLine.turn_duration}jm${eventLine.jump_duration}")
     ////
     if (needPublishLog) {
-        if (needGetOff)
+        if (notEnoughLong) // return if not enough return
             return
-
+        /**
+         * Catch max duration of single event from 4 types of event
+         */
         var maxDuration = arrayListOf<Int>(event.stop_duration, event.gas_break_duration, event.turn_duration, event.jump_duration).maxOrNull()
         if (maxDuration == null) { maxDuration = 1000000 } // just for test \\\
-        /////
+
         /**
          * Scoring Part
          */
@@ -432,7 +409,7 @@ fun compareLogs2 (eventLine: EventLine, lat: Double, lon : Double) {
 //            PowerCalc(EvrawForw,8,35),
 //            PowerCalc(EvrawSide,7,40)
 //        )
-
+        // write to file
         writePreProcLog(EventPreFinal(
             last_stop_1, last_gas_break_2, last_turn_3, last_jump_4,eventLine.condition_debug,
             TIME -maxDuration,
@@ -442,20 +419,24 @@ fun compareLogs2 (eventLine: EventLine, lat: Double, lon : Double) {
             PowerCalc(EvrawForw,2.0,12.0),
             PowerCalc(EvrawSide,3.0,12.0)
         ))
-
+        // Clear duration`s, reduce to 1, preparing to new event
         event.stop_duration      = 1
         event.gas_break_duration = 1
         event.turn_duration      = 1
         event.jump_duration      = 1
-
+        // Clear sum
         EvsumForw = 0.0
         EvsumSide = 0.0
         EvsumVert = 0.0
-        //
+        //Clear acceleration axis's
         EvrawForw = 0.0
         EvrawSide = 0.0
         EvrawVert = 0.0
     }
+
+    /*
+    Set last events to future compare
+     */
     last_stop_1      =  eventLine.stop_1
     last_gas_break_2 =  eventLine.gas_break_2
     last_turn_3      =  eventLine.turn_3
@@ -475,6 +456,9 @@ fun compareLogs2 (eventLine: EventLine, lat: Double, lon : Double) {
 //    )
 }
 
+/**
+ * Calculate score by whole trip, Alexander`s algorithm
+ */
 //var MIN_SPECIAL = 100.0
 //var MINUS = 5.0
 fun PowerCalc(ind : Double,old_min : Double,old_max : Double): Double {
@@ -597,7 +581,7 @@ fun writePreProcLog(s: String) {
         e.printStackTrace()
     }
 }
-
+// write to File
 fun writePreProcLog(s: EventPreFinal) {
     Log.i("ccc","ccc already writed:= ${s}")
     try {

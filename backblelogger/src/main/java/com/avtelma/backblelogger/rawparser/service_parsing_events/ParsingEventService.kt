@@ -12,13 +12,10 @@ import android.os.*
 import android.util.Log
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
-import com.avtelma.backblelogger.AVTSIPlatform_EntryPoint
 import com.avtelma.backblelogger.AVTSIPlatform_EntryPoint.Builder.RECORD_ACTIVITY_FOR_RAWPARSER
 import com.avtelma.backblelogger.AVTSIPlatform_EntryPoint.Builder.is_ENABLE_DELETE_GARBAGE_LOGS
 import com.avtelma.backblelogger.R
 import com.avtelma.backblelogger.broadcastreceivers.CloseServiceReceiver_RawParser
-import com.avtelma.backblelogger.broadcastreceivers.CloseServiceReceiver_RecorderLogs
-import com.avtelma.backblelogger.broadcastreceivers.UnBondingReceiver
 //import com.avtelma.backblelogger.broadcastreceivers.CloseServiceReceiver
 import com.avtelma.backblelogger.rawparser.core.algorithm.*
 
@@ -35,9 +32,6 @@ import com.avtelma.backblelogger.rawparser.tools.VariablesAndConstRawParser.root
 import com.avtelma.backblelogger.rawparser.tools.VariablesAndConstRawParser.root2_preproc
 import com.avtelma.backblelogger.rawparser.tools.VariablesAndConstRawParser.styleOfParsing
 //import com.avtelma.backgroundparser.core.algorithm.*
-import com.avtelma.backblelogger.rawparser.tools.VariablesAndConstRawParser.THRESHOLD_GAS_BREAK_DURATION
-import com.avtelma.backblelogger.rawparser.tools.VariablesAndConstRawParser.THRESHOLD_STOP_DURATION
-import com.avtelma.backblelogger.rawparser.tools.VariablesAndConstRawParser.THRESHOLD_TURN_DURATION
 import kotlinx.coroutines.*
 import java.io.*
 
@@ -392,9 +386,11 @@ class ParsingEventService : Service() {
 
                     if (arrayOfXYZ.size == 25) {
 
-                        //Log.i("vvv","vvv ${AlgorithmDefineEvents().calc(arrayOfXYZ)}")
+                        /**
+                         * Convert 25 lines of raw-data to 1 event line
+                         */
                         //Log.i("aloradance","stromae ${arrayOfXYZ.joinToString()}")
-                        var eventX = calc(arrayOfXYZ)
+                        var preparedEventLine = rawToEventLine(arrayOfXYZ)
                         //Location.distanceBetween()
                         var ltLn = LtLn(0.0,0.0)
                         //addLogsEvents("${GENERATE_SPECIAL_ID_FOR_EVENTS_2}","${eventX.stop_1},${eventX.gas_break_2},${eventX.turn_3},${eventX.jump_4},${eventX.condition_debug}")
@@ -404,8 +400,8 @@ class ParsingEventService : Service() {
 
                         //var lat = //.toDouble()
                         //var lon = .toDouble()
-                        Log.i("ccc","ccc eventX ${eventX.toString()}")
-                        compareLogs2( eventX, ltLn.lat,ltLn.lon ) // <<<
+                        Log.i("ccc","ccc eventX ${preparedEventLine.toString()}")
+                        findDurationAndScoreOfEvents( preparedEventLine, ltLn.lat,ltLn.lon ) // <<<
 
                         CURRENT_POS++
                         if (styleOfParsing == STYLE_OF_PARSING.TARGET_PARSING) {
