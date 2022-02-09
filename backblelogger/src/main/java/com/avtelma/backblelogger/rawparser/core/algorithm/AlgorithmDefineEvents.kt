@@ -126,7 +126,9 @@ var event = EventLine(0,0,0,0, CONDITION,0,0,0,0,0.0,0.0,0.0)
 var BIG_BUFFER : String = ""
 fun rawToEventLine(arrayOfXYZinner: ArrayList<XYZ>) : EventLine {
     var chunk_A = arrayOfXYZinner // vvariables 25
-    logMB("start of cycle >>>>>>>>>>>>>>>> ${chunk_A.joinToString()}")
+    if (chunk_A != null) {
+        logMB("start of cycle >>>>>>>>>>>>>>>> ${(chunk_A).joinToString()}")
+    }
 
     CONDITION = isHorisonted + isAzimuted
     event.stop_1     = 0
@@ -424,11 +426,11 @@ fun findDurationAndScoreOfEvents (eventLine: EventLine, lat: Double, lon : Doubl
         event.gas_break_duration = 1
         event.turn_duration      = 1
         event.jump_duration      = 1
-        // Clear sum
+        // Clear sum  [its for Scoring]
         EvsumForw = 0.0
         EvsumSide = 0.0
         EvsumVert = 0.0
-        //Clear acceleration axis's
+        // Clear acceleration axis's [its for Scoring]
         EvrawForw = 0.0
         EvrawSide = 0.0
         EvrawVert = 0.0
@@ -457,7 +459,7 @@ fun findDurationAndScoreOfEvents (eventLine: EventLine, lat: Double, lon : Doubl
 }
 
 /**
- * Calculate score by whole trip, Alexander`s algorithm
+ * Calculate score by whole trip, Alexander`s algorithm [its for Scoring]
  */
 //var MIN_SPECIAL = 100.0
 //var MINUS = 5.0

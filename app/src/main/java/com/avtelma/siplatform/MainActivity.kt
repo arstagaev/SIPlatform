@@ -8,6 +8,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothDevice
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -29,7 +30,10 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.Divider
+import androidx.compose.material.Text
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -48,6 +52,7 @@ import com.avtelma.backblelogger.logrecorder.service.EndlessService
 import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants
 import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants.Companion.ACTION_NOW
 import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants.Companion.CONNECTING_STYLE
+import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants.Companion.CURRENT_STATE_OF_SERVICE
 import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants.Companion.LIST_OF_FOUND_DEVICES
 import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants.Companion.SUPER_BLE_DEVICE
 import com.avtelma.backblelogger.logrecorder.tools.log
@@ -88,6 +93,7 @@ class MainActivity : ComponentActivity() {
 
 //    private val scanResults = mutableListOf<ScanResult>()
     var permiss = mutableStateOf(true)
+    var BD : BluetoothDevice? = null
 
     var timer : CountDownTimer = object : CountDownTimer(1000000,1000){
         override fun onTick(p0: Long) {
@@ -99,6 +105,7 @@ class MainActivity : ComponentActivity() {
                 for (i in LIST_OF_FOUND_DEVICES) {
                     if (i.bluetoothDevice.name != null && i.bluetoothDevice.name.toString().contains("itelma",true) == true) {
                         SUPER_BLE_DEVICE = i.bluetoothDevice
+                        BD = i.bluetoothDevice
                         Timber.i("I found2!!! ${i.bluetoothDevice.name} ${i.rssi} !!!")
                     }
                 }
@@ -113,9 +120,13 @@ class MainActivity : ComponentActivity() {
         if (BuildConfig.DEBUG) {
             Timber.plant(Timber.DebugTree())
         }
+        val intent = Intent(baseContext, TestSecondActivity::class.java)
+        //var foo : BluetoothDevice? = null
 
 
-        Log.i("zzz","zzz ${getFilesDir()} or ${getCacheDir()}   // ${getExternalCacheDir()}")
+
+
+        Timber.i("zzz","zzz ${getFilesDir()} or ${getCacheDir()}   // ${getExternalCacheDir()}")
 
         Log.i("zzz","zzz222 ${getExternalFilesDir("")} or ${getExternalCacheDir()}")
 
@@ -341,6 +352,20 @@ class MainActivity : ComponentActivity() {
                             Text(text = "start RawParser STOP",color = Color.Blue)
                         }
 
+                        Button(onClick = {
+                            //AVTSIPlatform_EntryPoint().setup(ConnectingStyle.AUTO_BY_BOND)
+                            //launchCommandInService_RAWPARSER(ParsingActions.START)
+
+                            intent.putExtra("foxy", SUPER_BLE_DEVICE)
+                            startActivity(intent)
+
+                        }, modifier = Modifier
+                            .padding(MASTER_PADDING)
+                            .background(Color.Cyan),
+                            colors = ButtonDefaults.buttonColors(backgroundColor = Color.Cyan)
+                        ) {
+                            Text(text = "To new Activity!",color = Color.Blue)
+                        }
                         Row(
                             Modifier
                                 .fillMaxWidth()
@@ -359,7 +384,14 @@ class MainActivity : ComponentActivity() {
                         ) {
 
                         }
+                        Button(onClick = {
+                            CONNECTING_STYLE = ConnectingStyle.MANUAL
+                            launchCommandInService(Actions.SCAN_START,this@MainActivity)
 
+                        }, modifier = Modifier.padding(MASTER_PADDING),
+                            colors = ButtonDefaults.buttonColors(backgroundColor = Color.White)) {
+                            Text(text = "manual connect",color = Color.Yellow)
+                        }
 
                     }
                 }
