@@ -19,7 +19,7 @@ class AVTSIPlatform_EntryPoint(
 
     companion object Builder {
         var SEPARATE_ADDRESS = "_null" // for connected address? need implement ??
-        var CAR_LICENSE_SIGN_TAG_ADDRESS = "nan"
+        var CAR_LICENSE_SIGN_TAG_ADDRESS = "LICENSESIG_000000000000"
         var is_ENABLE_REALTIME_CHART      : Boolean?         = null
         var is_SCORING                    : Boolean?         = null
         var is_ENABLE_DELETE_GARBAGE_LOGS : Boolean?         = null

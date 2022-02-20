@@ -5,6 +5,7 @@ package com.avtelma.siplatform
 // for a `var` variable also add
 //import com.avtelma.backgroundparser.InputSessionParser.Companion.PIZDEC
 import android.Manifest
+import android.Manifest.permission.ACCESS_BACKGROUND_LOCATION
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.bluetooth.BluetoothAdapter
@@ -71,8 +72,12 @@ import java.io.OutputStreamWriter
 private const val ENABLE_BLUETOOTH_REQUEST_CODE = 1
 private const val LOCATION_PERMISSION_REQUEST_CODE = 2
 
+
+
+
 @SuppressLint("MissingPermission")
 class MainActivity : ComponentActivity() {
+
 
     private var readPermissionGranted = false
     private var writePermissionGranted = false
@@ -124,18 +129,20 @@ class MainActivity : ComponentActivity() {
         //var foo : BluetoothDevice? = null
 
 
-
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            requestPermission(ACCESS_BACKGROUND_LOCATION,3)
+        }
 
         Timber.i("zzz","zzz ${getFilesDir()} or ${getCacheDir()}   // ${getExternalCacheDir()}")
 
         Log.i("zzz","zzz222 ${getExternalFilesDir("")} or ${getExternalCacheDir()}")
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            Log.i("zzz","checkStoragePermissionApi30 ${checkStoragePermissionApi30(this)}")
-            requestStoragePermissionApi30(this)
-        }else {
-            Log.i("zzz","checkStoragePermissionApi19 ${checkStoragePermissionApi19(this)}")
-        }
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+//            Log.i("zzz","checkStoragePermissionApi30 ${checkStoragePermissionApi30(this)}")
+//            requestStoragePermissionApi30(this)
+//        }else {
+//            Log.i("zzz","checkStoragePermissionApi19 ${checkStoragePermissionApi19(this)}")
+//        }
         timer.start()
 //        try {
 //            appendText("wow.txt","777")
@@ -200,7 +207,7 @@ class MainActivity : ComponentActivity() {
 
                         Button(onClick = {
 
-                            appendText("Recur.txt","++++++")
+                            appendText("Recur32:34:24.txt".replace(Regex(":"),""),"++++++")
 
                         }, modifier = Modifier.padding(MASTER_PADDING)) {
                             Text(text = "Create file ",color = Color.Blue)
@@ -323,8 +330,6 @@ class MainActivity : ComponentActivity() {
                                 colors = ButtonDefaults.buttonColors(backgroundColor = Color.White)) {
                                 Text(text = "G",color = Color.Red)
                             }
-
-
                         }
 
                         Divider(color = Color.Blue, thickness = 1.dp,modifier = Modifier.padding(5.dp))

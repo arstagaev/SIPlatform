@@ -102,7 +102,10 @@ class EndlessService : Service() {
             when (action) {
                 Actions.START.name ->        startService()
                 Actions.STOP.name ->         stopService()
-                Actions.FORCE_STOP.name ->   stopService()
+                Actions.FORCE_STOP.name -> {
+                    ACTION_NOW = Actions.FORCE_STOP
+                    stopService()
+                }
                 Actions.UNBOND.name -> unBondDevice()  // include unbond + stopService
                 Actions.SCAN_START.name ->{
                     //CONNECTING_STYLE = ConnectingStyle.AUTO_BY_SEARCH
@@ -522,6 +525,7 @@ class EndlessService : Service() {
         manager = getSystemService(BLUETOOTH_SERVICE) as BluetoothManager
 
         locationTask()
+
         try {
             //refreshListOfBondedDevices()
         }catch (e: Exception){}
@@ -561,9 +565,9 @@ class EndlessService : Service() {
                                 if (SUPER_BLE_DEVICE != null) {
 
                                     if (CONNECTING_STYLE == ConnectingStyle.MANUAL) {
-                                        tost("[Manual mode] Try connect: ${SUPER_BLE_DEVICE?.name?: "[error dev is null]"}",this@EndlessService,true,true)
+                                        tost("[Manual mode] Try connect: ${SUPER_BLE_DEVICE?.name?: "[name is null]"}",this@EndlessService,true,true)
                                     }else {
-                                        tost("Connect to lost device: ${SUPER_BLE_DEVICE?.name?: "[error dev is null]"}",this@EndlessService,true,true)
+                                        tost("Connect to lost device: ${SUPER_BLE_DEVICE?.name?: "[name is null]"}",this@EndlessService,true,true)
                                     }
                                     connectTo(SUPER_BLE_DEVICE!!)
 
@@ -645,23 +649,15 @@ class EndlessService : Service() {
                         }
 
                         Actions.NEUTRAL_CONNECTED -> {
-                            if (INSPECTOR_SWITCHER_SCAN > 7) { // more than 49 sec
-                                if (CLOSEST_BLE_DEVICE != null) {
-                                    connectTo(CLOSEST_BLE_DEVICE!!)
-                                    delay(7000)
-                                } else {
-                                    for (btcs in alreadyBondedDevices) {
+                            if (   CURRENT_STATE_OF_SERVICE == CurrentStateOfService.NO_CONNECTED
+                                || CURRENT_STATE_OF_SERVICE == CurrentStateOfService.CONNECTING
+                                || CURRENT_STATE_OF_SERVICE == CurrentStateOfService.LOSS_CONNECTION_AND_WAIT_NEW) {
 
-                                        connectTo(btcs)
-                                        delay(7000)
+                                connectTo(SUPER_BLE_DEVICE!!)
+                                delay(7000)
 
-                                    }
-                                    INSPECTOR_SWITCHER_SCAN++
-                                    refreshNotification("Make sure that ble tag is work, state: ${CURRENT_STATE_OF_SERVICE.name}",true)
+                            }else if (CURRENT_STATE_OF_SERVICE == CurrentStateOfService.CONNECTED_BUT_NO_RECORDING) {
 
-                                }
-                            } else {
-                                CONNECTING_STYLE = ConnectingStyle.AUTO_BY_BOND
                             }
                             Log.i("ccc","ccc NOW is Actions.NEUTRAL_CONNECTED")
                         }
@@ -670,29 +666,12 @@ class EndlessService : Service() {
                         }
                     }
                 }
-                if (ACTION_NOW == Actions.TARGET_CONNECT) {
-
-                    delay(1000)
-
-                }else {
-
-                    if (ACTION_NOW != Actions.NEUTRAL_CONNECTED
-
-                        && CURRENT_STATE_OF_SERVICE == CurrentStateOfService.CONNECTED_BUT_NO_RECORDING){
-
-                        //justNotify()
-                        delay(10000)
-
-                    }else if (CURRENT_STATE_OF_SERVICE == CurrentStateOfService.RECORDING){
-                        // need for setup new trip:
-                        //for e.x. if 3600s <= 100060s - 100070 {
-                        // no need setup "new trip"
-
-                        delay(20000)
-                    } else {
-                        delay(9000)
-                    }
+                ///////////////////////////////////////////////////////////////////
+                if (CURRENT_STATE_OF_SERVICE == CurrentStateOfService.RECORDING) {
+                    delay(20000)
                 }
+
+
                 Log.w("sss","<><><><><><><> LOAD SERVICE AGAIN <><><><><>")
             }
             log(">>>>>>>>>>>>>>>>>>End of the loop for the service<<<<<<<<<<<<<<<<<<<<<<<<<<<")

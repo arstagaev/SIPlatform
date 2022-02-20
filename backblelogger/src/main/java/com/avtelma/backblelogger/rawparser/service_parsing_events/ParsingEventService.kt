@@ -86,7 +86,7 @@ class ParsingEventService : Service() {
                     startService()
 
                     CoroutineScope(Dispatchers.IO).launch {
-                        parseTargetFile(File(root1_raw, TARGET_NAME_FILE_IMU_and_GPS))
+                        parseTargetFile( File(root1_raw, TARGET_NAME_FILE_IMU_and_GPS) )
                     }
 
                 }

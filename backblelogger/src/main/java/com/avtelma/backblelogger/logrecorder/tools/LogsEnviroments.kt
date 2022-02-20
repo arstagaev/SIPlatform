@@ -87,7 +87,7 @@ fun generateNameOfLogTXTFile() : String{
     var timeStamp: String = SimpleDateFormat("ddMM_HHmmss").format(Date())
 
 
-    return ""+timeStamp+"_imu_gps_${CAR_LICENSE_SIGN_TAG_ADDRESS}.txt"
+    return ""+timeStamp+"_imu_gps_${CAR_LICENSE_SIGN_TAG_ADDRESS ?: "null"}.txt"
 }
 
 
@@ -98,7 +98,7 @@ fun generateNameOfLogBYTESTXTFile() : String{
     var timeStamp: String = SimpleDateFormat("ddMM_HHmmss").format(Date())
 
 
-    return ""+timeStamp+"_raw_bytes_${CAR_LICENSE_SIGN_TAG_ADDRESS}.txt"
+    return ""+timeStamp+"_raw_bytes_${CAR_LICENSE_SIGN_TAG_ADDRESS ?: "null"}.txt"
 
 }
 
