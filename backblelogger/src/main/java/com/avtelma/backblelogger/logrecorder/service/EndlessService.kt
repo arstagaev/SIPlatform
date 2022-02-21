@@ -106,7 +106,11 @@ class EndlessService : Service() {
                     ACTION_NOW = Actions.FORCE_STOP
                     stopService()
                 }
-                Actions.UNBOND.name -> unBondDevice()  // include unbond + stopService
+                Actions.UNBOND.name ->{
+                    startService()
+                    ACTION_NOW = Actions.UNBOND
+                    //unBondDevice()  // include unbond + stopService
+                }
                 Actions.SCAN_START.name ->{
                     //CONNECTING_STYLE = ConnectingStyle.AUTO_BY_SEARCH
                     startService()
@@ -498,7 +502,6 @@ class EndlessService : Service() {
     @SuppressLint("CheckResult")
     private fun startService() {
 
-
         if (isServiceStarted) return
         //stopScan()
 
@@ -556,7 +559,8 @@ class EndlessService : Service() {
                     }catch (e : Exception){}
 
                     when(ACTION_NOW) {
-                        Actions.START, Actions.STOP , Actions.SUBS_AND_CONNECTED, Actions.MISC -> {
+                        Actions.START, Actions.STOP , Actions.SUBS_AND_CONNECTED, Actions.MISC, Actions.UNBOND -> {
+
                             if (   CURRENT_STATE_OF_SERVICE == CurrentStateOfService.NO_CONNECTED
                                 || CURRENT_STATE_OF_SERVICE == CurrentStateOfService.CONNECTING
                                 || CURRENT_STATE_OF_SERVICE == CurrentStateOfService.LOSS_CONNECTION_AND_WAIT_NEW) {
@@ -583,7 +587,7 @@ class EndlessService : Service() {
                                     for (bt in alreadyBondedDevices) {
                                         if (bt.name.toString().contains("itelma",true) == true){
                                             Log.i("cccc",">>> again connect ")
-                                            tost("[Manual mode] Try connect: ${SUPER_BLE_DEVICE?.name?: "[error dev is null]"}",this@EndlessService,false,true)
+                                            tost("[AUTO-BOND mode] Try connect: ${SUPER_BLE_DEVICE?.name?: "[error dev is null]"}",this@EndlessService,false,true)
 
                                             connectTo(bt)
                                             delay(7000)
@@ -639,12 +643,21 @@ class EndlessService : Service() {
 
                             }else if (CURRENT_STATE_OF_SERVICE == CurrentStateOfService.CONNECTED_BUT_NO_RECORDING) {
                                 //delay(12000) // i make this delay coz => phone do not have time to turn notifications in ~2 sec
-                                INSPECTOR_SWITCHER_SCAN = 0
-                                if (!IS_SUBSCRIBED) {
-                                    delay(700)
-                                    justNotify()
+                                if( ACTION_NOW != Actions.UNBOND ) {
+
+                                    INSPECTOR_SWITCHER_SCAN = 0
+                                    if (!IS_SUBSCRIBED) {
+                                        delay(700)
+                                        justNotify()
+                                    }
+                                    stopScan()
+
+                                } else {
+
+                                    unBondDevice()
+
                                 }
-                                stopScan()
+
                             }
                         }
 
@@ -664,6 +677,7 @@ class EndlessService : Service() {
                         Actions.TARGET_CONNECT -> {
                             Log.i("ttt","Actions.TARGET_CONNECT , waiting for connect: ${CHOSEN_BLE_DEVICE?.address} bondState:${CHOSEN_BLE_DEVICE?.bondState}")
                         }
+
                     }
                 }
                 ///////////////////////////////////////////////////////////////////
@@ -771,6 +785,7 @@ class EndlessService : Service() {
         }
         if (device == null) {
             Log.e("eee","deviceBLE is ${device.name}")
+            Toast.makeText(applicationContext,"device ble is null",Toast.LENGTH_SHORT).show()
             return
 
         }
@@ -941,7 +956,7 @@ class EndlessService : Service() {
                 delay(1000)
                 bleDevice?.removeBond()
                 delay(1500)
-                disconnectOfBleDevice()
+                disconnectOfBleDevice() // send unsubs + diconnect
                 alreadyBondedDevices = btAdapter.bondedDevices
             }
             toastShow("successful UNBONDED",Color.GREEN,this@EndlessService)
