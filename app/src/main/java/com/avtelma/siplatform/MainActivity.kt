@@ -171,6 +171,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             var visibleOfPermissions by remember { permiss }
             var MASTER_PADDING = 3.dp
+            visibleOfPermissions = callPermissions()
             AnimatedVisibility(
                 visible = visibleOfPermissions,
                 enter = fadeIn(
@@ -183,7 +184,7 @@ class MainActivity : ComponentActivity() {
                 )
             ) {
 
-                visibleOfPermissions= callPermissions()
+                callPermissions()
 
             }
 
@@ -198,11 +199,13 @@ class MainActivity : ComponentActivity() {
 
                     Column(modifier = Modifier.fillMaxSize()) {
                         Button(onClick = {
-
-                            commonDocumentDirPath("Rock")
+                            val intentX = Intent(this@MainActivity,MainActivity2::class.java)
+                            startActivity(intentX)
+                            finish()
+                            //commonDocumentDirPath("Rock")
 
                         }, modifier = Modifier.padding(MASTER_PADDING)) {
-                            Text(text = "Test create file directory",color = Color.Blue)
+                            Text(text = "To new ACTIVITY",color = Color.Blue)
                         }
 
                         Button(onClick = {
@@ -214,11 +217,11 @@ class MainActivity : ComponentActivity() {
                         }
 
                         Button(onClick = {
-                            AVTSIPlatform_EntryPoint.Builder.connStl(ConnectingStyle.MANUAL).build()
-                            launchCommandInService(Actions.START)
+                            AVTSIPlatform_EntryPoint.Builder.connStl(ConnectingStyle.AUTO_BY_BOND).build()
+                            launchCommandInService(Actions.UNBOND)
 
                         }, modifier = Modifier.padding(MASTER_PADDING)) {
-                            Text(text = "Start service, MANUAL",color = Color.Blue)
+                            Text(text = "Start service, UNBOND",color = Color.Blue)
                         }
 
                         Button(onClick = {
@@ -259,11 +262,12 @@ class MainActivity : ComponentActivity() {
 
                         Button(onClick = {
 
-                            //AVTSIPlatform_EntryPoint().setup(ConnectingStyle.AUTO_BY_BOND)
-                            launchCommandInService(Actions.SUBS_AND_CONNECTED)
+                            AVTSIPlatform_EntryPoint.connStl(ConnectingStyle.MANUAL).build()
+                            CONNECTING_STYLE = ConnectingStyle.MANUAL
+                            launchCommandInService(Actions.START)
 
                         }, modifier = Modifier.padding(MASTER_PADDING)) {
-                            Text(text = "make, SUBS_AND_CONNECTED",color = Color.Blue)
+                            Text(text = "make, MANUAL CONNECT",color = Color.Blue)
                         }
                         Row {
                             Button(onClick = {

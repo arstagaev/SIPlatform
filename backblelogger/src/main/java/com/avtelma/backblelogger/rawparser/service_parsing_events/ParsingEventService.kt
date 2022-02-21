@@ -120,8 +120,11 @@ class ParsingEventService : Service() {
     override fun onCreate() {
         super.onCreate()
         log("The parsing service has been created".toUpperCase())
-        val notification = createNotification()
-        startForeground(2, notification)
+        if (!isServiceStarted) {
+            val notification = createNotification()
+            startForeground(2, notification)
+        }
+
     }
 
     override fun onDestroy() {

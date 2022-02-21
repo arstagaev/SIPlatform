@@ -462,8 +462,11 @@ class EndlessService : Service() {
         if (ACTION_NOW == Actions.FORCE_STOP) {
             stopService()
         }
-        val notification = createNotification()
-        startForeground(1, notification)
+        if (!isServiceStarted) {
+            val notification = createNotification()
+            startForeground(1, notification)
+        }
+
     }
 
     override fun onDestroy() {
@@ -573,7 +576,9 @@ class EndlessService : Service() {
                                     }else {
                                         tost("Connect to lost device: ${SUPER_BLE_DEVICE?.name?: "[name is null]"}",this@EndlessService,true,true)
                                     }
+
                                     connectTo(SUPER_BLE_DEVICE!!)
+                                    delay(7000)
 
                                 } else if (CONNECTING_STYLE == ConnectingStyle.AUTO_BY_BOND) {
                                     /**
@@ -585,7 +590,7 @@ class EndlessService : Service() {
 
 
                                     for (bt in alreadyBondedDevices) {
-                                        if (bt.name.toString().contains("itelma",true) == true){
+                                        if (bt.name.toString().contains("itelma",true) == true) {
                                             Log.i("cccc",">>> again connect ")
                                             tost("[AUTO-BOND mode] Try connect: ${SUPER_BLE_DEVICE?.name?: "[error dev is null]"}",this@EndlessService,false,true)
 
@@ -643,14 +648,15 @@ class EndlessService : Service() {
 
                             }else if (CURRENT_STATE_OF_SERVICE == CurrentStateOfService.CONNECTED_BUT_NO_RECORDING) {
                                 //delay(12000) // i make this delay coz => phone do not have time to turn notifications in ~2 sec
-                                if( ACTION_NOW != Actions.UNBOND ) {
 
+                                if( ACTION_NOW != Actions.UNBOND ) {
                                     INSPECTOR_SWITCHER_SCAN = 0
                                     if (!IS_SUBSCRIBED) {
                                         delay(700)
                                         justNotify()
                                     }
                                     stopScan()
+
 
                                 } else {
 
@@ -683,6 +689,8 @@ class EndlessService : Service() {
                 ///////////////////////////////////////////////////////////////////
                 if (CURRENT_STATE_OF_SERVICE == CurrentStateOfService.RECORDING) {
                     delay(20000)
+                }else {
+                    delay(4000)
                 }
 
 
@@ -932,7 +940,7 @@ class EndlessService : Service() {
         isServiceStarted = false
         setServiceState(this, ServiceState.STOPPED)
 
-        if (ACTION_NOW != Actions.FORCE_STOP) {
+        if (ACTION_NOW != Actions.FORCE_STOP && ACTION_NOW != Actions.UNBOND) {
             launchCommandInService_RAWPARSER(ParsingActions.FULL_PARSING)
         }
 
@@ -960,7 +968,7 @@ class EndlessService : Service() {
                 alreadyBondedDevices = btAdapter.bondedDevices
             }
             toastShow("successful UNBONDED",Color.GREEN,this@EndlessService)
-
+            stopService()
         }else {
             tost("cant unbond \uD83D\uDC2E!! need connection and after that unbond",this@EndlessService,true,true)
         }
