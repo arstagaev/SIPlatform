@@ -74,7 +74,13 @@ class ParsingEventService : Service() {
             log("using an intent with action $action")
             when (action) {
                 ParsingActions.START.name ->  startService() // Engine Start
-                ParsingActions.STOP.name  ->  stopService()  // Engine Stop!
+                ParsingActions.STOP.name  ->  {
+                    stopService()  // Engine Stop!
+                    if (!isServiceStarted) {
+                        stopSelf()
+                    }
+                    return START_NOT_STICKY
+                }
                 ParsingActions.FULL_PARSING.name -> {
                     styleOfParsing = STYLE_OF_PARSING.WATER_FALL_PARSING
                     startService()
@@ -315,6 +321,10 @@ class ParsingEventService : Service() {
                 last_LtLn = LtLn(0.0, 0.0)
 
                 //parseTargetFile(File("${root1_raw}/${i}_imu_gps.txt"))
+                if (!isServiceStarted) { // TODO attention !!!
+                    return@launch
+                }
+
                 parseTargetFile(i.filex)
 
                 //Log.i("well","well done >|parse|< ${root1_raw}/${i}_imu_gps.txt")

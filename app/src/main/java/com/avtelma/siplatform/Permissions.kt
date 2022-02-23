@@ -2,10 +2,12 @@ package com.avtelma.siplatform
 
 import android.Manifest
 import android.app.AppOpsManager
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.provider.Settings
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.background
@@ -27,6 +29,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.avtelma.siplatform.ext.isPermanentlyDenied
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.PermissionState
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
@@ -34,34 +37,59 @@ import kotlinx.coroutines.launch
 import java.util.*
 import kotlin.concurrent.fixedRateTimer
 
-
+private fun Context.hasPermission(permissionType: String): Boolean {
+    return ContextCompat.checkSelfPermission(this, permissionType) ==
+            PackageManager.PERMISSION_GRANTED
+}
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun callPermissions(): Boolean {
-    val permissionsState = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+fun callPermissions(applicationContext : Context): Boolean {
+
+
+
+    val permissionsState = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) { // if Android 12
         rememberMultiplePermissionsState(
             permissions = listOf(
-    //            Manifest.permission.RECORD_AUDIO,
-    //            Manifest.permission.CAMERA,
+                //            Manifest.permission.RECORD_AUDIO,
+                //            Manifest.permission.CAMERA,
 //                Manifest.permission.READ_EXTERNAL_STORAGE,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE,
                 Manifest.permission.ACCESS_FINE_LOCATION,
                 Manifest.permission.BLUETOOTH_SCAN,
                 Manifest.permission.BLUETOOTH_CONNECT,
-
+                //Manifest.permission.ACCESS_BACKGROUND_LOCATION
             )
         )
     } else {
-        rememberMultiplePermissionsState(
-            permissions = listOf(
-                //            Manifest.permission.RECORD_AUDIO,
-                //            Manifest.permission.CAMERA,
-                Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.BLUETOOTH_ADMIN
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if(!applicationContext.hasPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION)){
+                Toast.makeText(applicationContext,"make: Allow all the time", Toast.LENGTH_LONG).show()
+
+            }
+
+            rememberMultiplePermissionsState(
+                permissions = listOf(
+                    //            Manifest.permission.RECORD_AUDIO,
+                    //            Manifest.permission.CAMERA,
+                    Manifest.permission.READ_EXTERNAL_STORAGE,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.BLUETOOTH_ADMIN,
+                    //Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                )
             )
-        )
+        } else {
+            rememberMultiplePermissionsState(
+                permissions = listOf(
+                    //            Manifest.permission.RECORD_AUDIO,
+                    //            Manifest.permission.CAMERA,
+                    Manifest.permission.READ_EXTERNAL_STORAGE,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.BLUETOOTH_ADMIN
+                )
+            )
+        }
     }
 
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -169,19 +197,19 @@ fun callPermissions(): Boolean {
                     when {
                         perm.hasPermission -> {
                             //allPermissionsHave = true
-                            Text(text = "WRITE_EXTERNAL_STORAGE permission accepted")
+                            Text(text = "ACCESS_FINE_LOCATION permission accepted")
                         }
                         perm.shouldShowRationale -> {
                             allPermissionsHave = false
                             Text(
-                                text = "WRITE_EXTERNAL_STORAGE permission is needed" +
-                                        "to access the camera"
+                                text = "ACCESS_FINE_LOCATION permission is needed" +
+                                        "to access the gps"
                             )
                         }
                         perm.isPermanentlyDenied() -> {
                             allPermissionsHave = false
                             Text(
-                                text = "WRITE_EXTERNAL_STORAGE permission was permanently" +
+                                text = "ACCESS_FINE_LOCATION permission was permanently" +
                                         "denied. You can enable it in the app" +
                                         "settings."
                             )
@@ -272,7 +300,7 @@ fun callPermissions(): Boolean {
             )
         }else {
             Text(
-                text = "All Permissions accepted",
+                text = "Part of Permissions accepted",
                 color = Color.White,
                 modifier = Modifier.background(Color.Green)
             )
@@ -317,7 +345,7 @@ fun requestStoragePermissionApi30(activity: ComponentActivity) {
 }
 
 @RequiresApi(19)
-fun checkStoragePermissionApi19(activity: MainActivity): Boolean {
+fun checkStoragePermissionApi19(activity: ComponentActivity): Boolean {
     val status =
         ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE)
     //AppCompatActivity
@@ -332,4 +360,9 @@ fun requestStoragePermissionApi19(activity: ComponentActivity) {
         permissions,
         READ_EXTERNAL_STORAGE_PERMISSION_REQUEST
     )
+}
+
+@ExperimentalPermissionsApi
+fun PermissionState.isPermanentlyDenied(): Boolean {
+    return !shouldShowRationale && !hasPermission
 }

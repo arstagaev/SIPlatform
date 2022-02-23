@@ -171,7 +171,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             var visibleOfPermissions by remember { permiss }
             var MASTER_PADDING = 3.dp
-            visibleOfPermissions = callPermissions()
+            visibleOfPermissions = callPermissions(applicationContext)
             AnimatedVisibility(
                 visible = visibleOfPermissions,
                 enter = fadeIn(
@@ -184,7 +184,7 @@ class MainActivity : ComponentActivity() {
                 )
             ) {
 
-                callPermissions()
+                callPermissions(applicationContext)
 
             }
 
@@ -431,7 +431,7 @@ class MainActivity : ComponentActivity() {
         if (VariablesAndConstants.CURRENT_STATE_OF_SERVICE != CurrentStateOfService.RECORDING) {
 
             ACTION_NOW = Actions.FORCE_STOP
-            launchCommandInService(Actions.SCAN_STOP,this)
+            //launchCommandInService(Actions.SCAN_STOP,this)
             launchCommandInService(Actions.FORCE_STOP,this)
         }
 

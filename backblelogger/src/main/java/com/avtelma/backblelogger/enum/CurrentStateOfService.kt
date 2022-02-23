@@ -8,5 +8,5 @@ enum class CurrentStateOfService(s: String) {
     RECORDING("recording.."),
     LOSS_CONNECTION_AND_WAIT_NEW("loss connection"),SAVING_PLEASE_WAIT("saving.."),
     UNBONDING("unbonding"),
-    //WAIT_COMMAND_UNSUBS("wait_command")
+    //WAIT_COMMAND_UNSUBS("wait_command")x
 }

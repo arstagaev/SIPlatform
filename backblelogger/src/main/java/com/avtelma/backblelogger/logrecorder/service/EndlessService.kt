@@ -100,11 +100,23 @@ class EndlessService : Service() {
 
             log("using an intent with action $action")
             when (action) {
-                Actions.START.name ->        startService()
-                Actions.STOP.name ->         stopService()
+                Actions.START.name -> {
+                    startService()
+                }
+                Actions.STOP.name -> {
+                    stopService()
+                    if (!isServiceStarted) {
+                        stopSelf()
+                    }
+                    return START_NOT_STICKY
+                }
                 Actions.FORCE_STOP.name -> {
                     ACTION_NOW = Actions.FORCE_STOP
                     stopService()
+                    if (!isServiceStarted) {
+                        stopSelf()
+                    }
+                    return START_NOT_STICKY
                 }
                 Actions.UNBOND.name ->{
                     startService()
@@ -143,7 +155,7 @@ class EndlessService : Service() {
                         1 -> { connectTo(CHOSEN_BLE_DEVICE!!)  }
                         6 -> { startScan() }
                         7 -> { stopScan()  }
-                        8 -> {unBondDevice()}
+                        8 -> { unBondDevice()}
                     }
                 }
                 Actions.TARGET_CONNECT.name -> {
@@ -442,9 +454,6 @@ class EndlessService : Service() {
         override fun onDeviceConnecting(device: BluetoothDevice) {
             Log.d("ccc", "Connecting")
             CURRENT_STATE_OF_SERVICE = CurrentStateOfService.CONNECTING
-//            if (device.name != "SL004002"){
-//
-//            }
             sendMessage("")
         }
     }
@@ -505,7 +514,9 @@ class EndlessService : Service() {
     @SuppressLint("CheckResult")
     private fun startService() {
 
-        if (isServiceStarted) return
+        if (isServiceStarted) {
+            return
+        }
         //stopScan()
 
         log("Starting the foreground service task")
@@ -531,10 +542,6 @@ class EndlessService : Service() {
         manager = getSystemService(BLUETOOTH_SERVICE) as BluetoothManager
 
         locationTask()
-
-        try {
-            //refreshListOfBondedDevices()
-        }catch (e: Exception){}
 
 
         if (CONNECTING_STYLE == ConnectingStyle.AUTO_BY_SEARCH) {
@@ -653,7 +660,7 @@ class EndlessService : Service() {
                                     INSPECTOR_SWITCHER_SCAN = 0
                                     if (!IS_SUBSCRIBED) {
                                         delay(700)
-                                        justNotify()
+                                        subscribeToCharacteristic()
                                     }
                                     stopScan()
 
@@ -855,7 +862,7 @@ class EndlessService : Service() {
                 }
             }
 
-            if (device.bondState == 10){
+            if (device.bondState == 10) {
                 GlobalScope.launch {
                     delay(700)
                     device.createBond() // may delete i test why few times suggest make bond connection
@@ -881,7 +888,7 @@ class EndlessService : Service() {
 
     }
 
-    private fun justNotify(){
+    private fun subscribeToCharacteristic(){
         try {
             if (! bleManager!!.isConnected ){
                 CURRENT_STATE_OF_SERVICE = CurrentStateOfService.LOSS_CONNECTION_AND_WAIT_NEW
@@ -917,6 +924,10 @@ class EndlessService : Service() {
     }
 
     private fun stopService() {
+        if (!isServiceStarted){
+            return
+        }
+
         stopScan()
         log("Stopping the foreground service")
         Toast.makeText(this, "Service stopping", Toast.LENGTH_SHORT).show()
@@ -959,12 +970,14 @@ class EndlessService : Service() {
             GlobalScope.launch {
 
                 bleManager?.notifyCharacteristic(false,UUID.fromString("74ab521e-060d-26df-aa64-cf4df2d0d641"))
-                delay(1000)
-                bleManager?.writeCharacteristic( UUID.fromString("74ab521e-060d-26df-aa64-cf4df2d0d643"),"01")
-                delay(1000)
+                delay(3000)
                 bleDevice?.removeBond()
+                delay(2500)
+                bleManager?.writeCharacteristic( UUID.fromString("74ab521e-060d-26df-aa64-cf4df2d0d643"),"1") // been 01
                 delay(1500)
                 disconnectOfBleDevice() // send unsubs + diconnect
+
+
                 alreadyBondedDevices = btAdapter.bondedDevices
             }
             toastShow("successful UNBONDED",Color.GREEN,this@EndlessService)
@@ -1023,9 +1036,11 @@ class EndlessService : Service() {
                   log("Starting the service in >=26 Mode")
                   startForegroundService(it)
                   return
+            }else {
+                log("Starting the service in < 26 Mode")
+                startService(it)
             }
-            log("Starting the service in < 26 Mode")
-            startService(it)
+
         }
         //fixme
 
