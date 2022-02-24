@@ -812,6 +812,7 @@ class EndlessService : Service() {
         if (CURRENT_STATE_OF_SERVICE == CurrentStateOfService.NO_CONNECTED || CURRENT_STATE_OF_SERVICE == CurrentStateOfService.LOSS_CONNECTION_AND_WAIT_NEW){
             Log.i("ccc","make connectt!!>>${device.name} is connected: ${bleManager?.isConnected} is bonded: ${device.bondState == 12} ")
             bleDevice = device
+            IS_SUBSCRIBED = false
             //FORBACKGRND_BLE_DEVICE = device
 
             //toastShow("Connecting to: ${bleDevice?.name}",Color.YELLOW,this@EndlessService)
@@ -935,6 +936,7 @@ class EndlessService : Service() {
         Toast.makeText(this, "Service stopping", Toast.LENGTH_SHORT).show()
         CLOSEST_BLE_DEVICE = null
         SUPER_BLE_DEVICE = null
+        IS_SUBSCRIBED = false
         try {
             disconnectOfBleDevice()
             wakeLock?.let {
