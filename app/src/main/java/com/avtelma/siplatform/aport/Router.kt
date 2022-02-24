@@ -40,7 +40,7 @@ class Router {
             "startpt","9" ->  { launchCommandInService_RAWPARSER(ParsingActions.TARGET_PARSING,ctx)  }
             "stopp","10" ->  {  launchCommandInService_RAWPARSER(ParsingActions.STOP,ctx) }
             "log","11" -> { BIG_SHARED_STR.value = "[${CURRENT_STATE_OF_SERVICE.name}, ${CONNECTING_STYLE.name}]"  }
-
+            "unbond" -> { launchCommandInService(Actions.UNBOND, ctx)  }
             else -> {BIG_SHARED_STR.value += "\ndon`t know command :(" }
         }
     }

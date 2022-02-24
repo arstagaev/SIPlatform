@@ -26,6 +26,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.avtelma.backblelogger.AVTSIPlatform_EntryPoint.Builder.RECORD_ACTIVITY
+import com.avtelma.backblelogger.AVTSIPlatform_EntryPoint.Builder.SEND_TO_UNBOND
 import com.avtelma.backblelogger.AVTSIPlatform_EntryPoint.Builder.STARTUP_DELAY_OF_LOOPER
 import com.avtelma.backblelogger.broadcastreceivers.CloseServiceReceiver_RecorderLogs
 import com.avtelma.backblelogger.broadcastreceivers.UnBondingReceiver
@@ -119,8 +120,9 @@ class EndlessService : Service() {
                     return START_NOT_STICKY
                 }
                 Actions.UNBOND.name ->{
-                    startService()
                     ACTION_NOW = Actions.UNBOND
+                    startService()
+
                     //unBondDevice()  // include unbond + stopService
                 }
                 Actions.SCAN_START.name ->{
@@ -973,7 +975,7 @@ class EndlessService : Service() {
                 delay(3000)
                 bleDevice?.removeBond()
                 delay(2500)
-                bleManager?.writeCharacteristic( UUID.fromString("74ab521e-060d-26df-aa64-cf4df2d0d643"),"1") // been 01
+                bleManager?.writeCharacteristic( UUID.fromString("74ab521e-060d-26df-aa64-cf4df2d0d643"),SEND_TO_UNBOND ?: "01") // been 01
                 delay(1500)
                 disconnectOfBleDevice() // send unsubs + diconnect
 
