@@ -666,7 +666,6 @@ class EndlessService : Service() {
                                     }
                                     stopScan()
 
-
                                 } else {
 
                                     unBondDevice()
