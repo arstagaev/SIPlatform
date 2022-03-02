@@ -4,13 +4,14 @@ package com.avtelma.backblelogger.logrecorder.service
 
 //import com.avtelma.backblelogger.tools.VariablesAndConstants.Companion.SETUP_AIM_BLE_DEVICE_NAME
 
+//import com.avtelma.backblelogger.tools.*
+
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.*
-import android.bluetooth.BluetoothAdapter
-import android.bluetooth.BluetoothDevice
-import android.bluetooth.BluetoothGattService
-import android.bluetooth.BluetoothManager
+import android.bluetooth.*
+import android.bluetooth.BluetoothGattCharacteristic.PROPERTY_INDICATE
+import android.bluetooth.BluetoothGattCharacteristic.PROPERTY_NOTIFY
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -30,20 +31,17 @@ import com.avtelma.backblelogger.AVTSIPlatform_EntryPoint.Builder.SEND_TO_UNBOND
 import com.avtelma.backblelogger.AVTSIPlatform_EntryPoint.Builder.STARTUP_DELAY_OF_LOOPER
 import com.avtelma.backblelogger.broadcastreceivers.CloseServiceReceiver_RecorderLogs
 import com.avtelma.backblelogger.broadcastreceivers.UnBondingReceiver
-import com.avtelma.backblelogger.logrecorder.core.converterToXYZAllArray
-import com.avtelma.backblelogger.logrecorder.core.converterToXYZJustFirstElement
-import com.avtelma.backblelogger.logrecorder.core.dataParse2
 import com.avtelma.backblelogger.enum.Actions
 import com.avtelma.backblelogger.enum.ConnectingStyle
 import com.avtelma.backblelogger.enum.CurrentStateOfService
+import com.avtelma.backblelogger.logrecorder.core.converterToXYZAllArray
+import com.avtelma.backblelogger.logrecorder.core.converterToXYZJustFirstElement
+import com.avtelma.backblelogger.logrecorder.core.dataParse2
 import com.avtelma.backblelogger.logrecorder.models.FoundDevice
 import com.avtelma.backblelogger.logrecorder.nordicble.BaseNordicBleManager
-import com.avtelma.backblelogger.rawparser.service_parsing_events.ParsingActions
-import com.avtelma.backblelogger.rawparser.service_parsing_events.ParsingEventService
 import com.avtelma.backblelogger.logrecorder.soundplayer.SoundPlay
 import com.avtelma.backblelogger.logrecorder.soundplayer.WhatIMustSay
 import com.avtelma.backblelogger.logrecorder.tools.*
-//import com.avtelma.backblelogger.tools.*
 import com.avtelma.backblelogger.logrecorder.tools.Converters.Companion.bytesToHex
 import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants.Companion.ACTION_NOW
 import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants.Companion.CHOSEN_BLE_DEVICE
@@ -52,6 +50,7 @@ import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants.Compani
 import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants.Companion.CURRENT_SPEED
 import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants.Companion.CURRENT_STATE_OF_SERVICE
 import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants.Companion.GPS_LOG
+import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants.Companion.IS_NOTIFY_TYPE_OF_CHARACTERISTIC
 import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants.Companion.IS_SUBSCRIBED
 import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants.Companion.LAST_CAUGHT_NOTIFY_time
 import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants.Companion.LIST_OF_FOUND_DEVICES
@@ -59,9 +58,13 @@ import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants.Compani
 import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants.Companion.SESSION_NAME_TIME_xyz
 import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants.Companion.SUPER_BLE_DEVICE
 import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants.Companion.TYPE_OF_INPUT_LOG
+import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants.Companion.WITH_CREATE_BOND
+import com.avtelma.backblelogger.rawparser.service_parsing_events.ParsingActions
+import com.avtelma.backblelogger.rawparser.service_parsing_events.ParsingEventService
 import com.avtelma.backblelogger.toast_manage.tost
 import kotlinx.coroutines.*
 import no.nordicsemi.android.support.v18.scanner.*
+import java.lang.Compiler.enable
 import java.util.*
 
 
@@ -102,6 +105,7 @@ class EndlessService : Service() {
             log("using an intent with action $action")
             when (action) {
                 Actions.START.name -> {
+                    ACTION_NOW = Actions.START
                     startService()
                 }
                 Actions.STOP.name -> {
@@ -219,6 +223,7 @@ class EndlessService : Service() {
         Log.i("init","init BaseNordicBleManager")
         bleManager = BaseNordicBleManager(this@EndlessService)
         bleManager?.setGattCallbacks(bleManagerCallbacks)
+
     }
 
     private val scanCallback = object : ScanCallback() {
@@ -306,7 +311,47 @@ class EndlessService : Service() {
     @ExperimentalUnsignedTypes
     private val bleManagerCallbacks = object : BaseNordicBleManager.ConnectedLECallback {
         override fun updateServices(serviceList: MutableList<BluetoothGattService>) {
-            //foundService.value = serviceList
+            //foundService.value = serviceList 74ab521e-060d-26df-aa64-cf4df2d0d640
+            //Here we define types of characteristics:
+
+            // Check if characteristic has NOTIFY or INDICATE properties and set the correct byte value to be written
+
+            //val finalValue =
+            //    if (enable) value else BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE
+
+            for (i in serviceList) {
+                if (i.uuid == UUID.fromString("74ab521e-060d-26df-aa64-cf4df2d0d640")) {
+                    for (z in i.characteristics) {
+                        Log.w("zzz","zzzz |${z.toString()}")
+                        Log.w("zzz","zzzz property |${z.properties} ")
+
+                        // Check if characteristic has NOTIFY or INDICATE properties and set the correct byte value to be written
+                        //val value: ByteArray
+                        val properties: Int = z.getProperties()
+                        if (properties and PROPERTY_NOTIFY > 0) {
+
+                            BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
+                            Log.w("zzz","zzzz |> ENABLE_NOTIFICATION_VALUE")
+
+                        } else if (properties and PROPERTY_INDICATE > 0) {
+
+                            BluetoothGattDescriptor.ENABLE_INDICATION_VALUE
+                            IS_NOTIFY_TYPE_OF_CHARACTERISTIC = false                   ///  !!!
+                            Log.w("zzz","zzzz |> ENABLE_INDICATION_VALUE")
+
+                        } else {
+                            Log.e(
+                                "TAG",
+                                java.lang.String.format(
+                                    "ERROR: Characteristic %s does not have notify or indicate property",
+                                    z.getUuid()
+                                )
+                            )
+                        }
+                    }
+                }
+            }
+            //serviceList[0].characteristics[0]
         }
 
         override fun onRead(uuid: UUID, bytes: ByteArray?, msg: String?) {
@@ -318,6 +363,58 @@ class EndlessService : Service() {
         override fun onWrite(uuid: UUID, isSuccess: Boolean) {
             log("${uuid.toString()}/ Write) " + (if (isSuccess) "success" else "failed"))
             sendMessage("********* Write isSuccess= "+isSuccess)
+        }
+
+        override fun onIndicated(uuid: UUID, bytes: ByteArray?, msg: String?) {
+            if (msg != null) {
+                Log.w("cccnnn"," cccnnn msg from notif:${msg}")
+
+                if(msg == "set up") {
+                    IS_SUBSCRIBED = true
+                    //SoundPlay().playx(this@EndlessService, WhatIMustSay.SUCCESS_SUBS)
+                    SoundPlay().playx(this@EndlessService, WhatIMustSay.DING)
+                }else if (msg == "end" || msg == "fail") {
+                    IS_SUBSCRIBED = false
+                }
+
+                Toast.makeText(applicationContext,">>> Subscribe ${msg}",Toast.LENGTH_SHORT).show()
+            }
+
+            if (bytes != null ) {
+
+                LAST_CAUGHT_NOTIFY_time = System.currentTimeMillis() / 1000L
+
+                var bytesX : ByteArray = bytes
+
+                // fixme need change, for econom memory
+                refreshNotification(
+                    converterToXYZJustFirstElement(
+                        dataParse2(bytesX)
+                    ),
+                    false
+                )
+
+                // Write logs to file
+                addLogsIMUandGPS(SESSION_NAME_TIME_xyz,
+                    converterToXYZAllArray(dataParse2(bytesX))
+                )
+                addLogsRawData(SESSION_NAME_TIME_raw, bytesToHex(bytesX))
+
+                Log.i("ccc","ccc ${bytesX.size}")
+
+                if (CURRENT_STATE_OF_SERVICE == CurrentStateOfService.CONNECTED_BUT_NO_RECORDING && bytesX.size > 240){
+
+                    SoundPlay().playx(this@EndlessService, WhatIMustSay.START_REC)
+
+                }
+
+                //addLogsGPS(SESSION_NAME_TIME_gps,)
+                CURRENT_STATE_OF_SERVICE = CurrentStateOfService.RECORDING
+
+            }else{
+                CURRENT_STATE_OF_SERVICE = CurrentStateOfService.CONNECTED_BUT_NO_RECORDING
+                log("data notiff is null!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1")
+            }
         }
 
         override fun onNotified(uuid: UUID, bytes: ByteArray?, msg: String?) {
@@ -566,7 +663,7 @@ class EndlessService : Service() {
                     //var gattDevices = manager.getConnectedDevices(BluetoothProfile.GATT)
                     try {
 
-                        Log.w("ccc"," current state of rec: ${CURRENT_STATE_OF_SERVICE.name} action: ${ACTION_NOW.name} style: ${CONNECTING_STYLE.name}  SUPERBD: ${SUPER_BLE_DEVICE?.name}" )
+                        Log.w("ccc"," current state of rec: ${CURRENT_STATE_OF_SERVICE.name} [action: ${ACTION_NOW.name} style: ${CONNECTING_STYLE.name}]  SUPERBD: ${SUPER_BLE_DEVICE?.name}" )
 
                     }catch (e : Exception){}
 
@@ -657,7 +754,7 @@ class EndlessService : Service() {
 
                             }else if (CURRENT_STATE_OF_SERVICE == CurrentStateOfService.CONNECTED_BUT_NO_RECORDING) {
                                 //delay(12000) // i make this delay coz => phone do not have time to turn notifications in ~2 sec
-
+                                checkTypeOfCharacteristic()
                                 if( ACTION_NOW != Actions.UNBOND ) {
                                     INSPECTOR_SWITCHER_SCAN = 0
                                     if (!IS_SUBSCRIBED) {
@@ -708,6 +805,11 @@ class EndlessService : Service() {
             log(">>>>>>>>>>>>>>>>>>End of the loop for the service<<<<<<<<<<<<<<<<<<<<<<<<<<<")
             log(">>>>>>>>>>>>>>>>>>End of the loop for the service<<<<<<<<<<<<<<<<<<<<<<<<<<<")
         }
+    }
+
+    private fun checkTypeOfCharacteristic() {
+        //var a = bleManager?.readCharacteristic(UUID.fromString("74ab521e-060d-26df-aa64-cf4df2d0d641"))
+
     }
 
     private var lastLocation: Location? = null
@@ -825,15 +927,17 @@ class EndlessService : Service() {
                 }
 
             }
-
-            if (device.bondState == 10){
-                GlobalScope.launch {
-                    delay(700)
-                    device.createBond() // may delete i test why few times suggest make bond connection
-                    Log.i("ccc","CREATE BOND....  BONDSTATE:${device.bondState} ")
-                    delay(3000)
+            if (WITH_CREATE_BOND) {
+                if (device.bondState == 10){
+                    GlobalScope.launch {
+                        delay(700)
+                        device.createBond() // may delete i test why few times suggest make bond connection
+                        Log.i("ccc","CREATE BOND....  BONDSTATE:${device.bondState} ")
+                        delay(3000)
+                    }
                 }
             }
+
 
             //bleManager?.logSession = Logger.newSession(this, null, device.address, device.name)
             // check if not bond -> make bond
@@ -903,22 +1007,38 @@ class EndlessService : Service() {
         if (CURRENT_STATE_OF_SERVICE == CurrentStateOfService.CONNECTED_BUT_NO_RECORDING){
             Log.i("ccc","try to connect UUID notif")
 
-            bleManager?.notifyCharacteristic(true,UUID.fromString("74ab521e-060d-26df-aa64-cf4df2d0d641"))
-
+            //bleManager?.notifyCharacteristic(true,UUID.fromString("74ab521e-060d-26df-aa64-cf4df2d0d641"))
+            if (IS_NOTIFY_TYPE_OF_CHARACTERISTIC) {
+                bleManager?.notifyCharacteristic(true,UUID.fromString("74ab521e-060d-26df-aa64-cf4df2d0d641"))
+            }else {
+                bleManager?.indicateCharacteristic(true,UUID.fromString("74ab521e-060d-26df-aa64-cf4df2d0d641"))
+            }
         }
 
     }
 
     private fun unSubscribe(){
         try {
-            bleManager?.notifyCharacteristic(isChecked = false,UUID.fromString("74ab521e-060d-26df-aa64-cf4df2d0d641"))
+            //bleManager?.notifyCharacteristic(isChecked = false,UUID.fromString("74ab521e-060d-26df-aa64-cf4df2d0d641"))
+
+            if (IS_NOTIFY_TYPE_OF_CHARACTERISTIC) {
+                bleManager?.notifyCharacteristic(false,UUID.fromString("74ab521e-060d-26df-aa64-cf4df2d0d641"))
+            }else {
+                bleManager?.indicateCharacteristic(false,UUID.fromString("74ab521e-060d-26df-aa64-cf4df2d0d641"))
+            }
+
         }catch (e: Exception){}
 
     }
 
 
     fun disconnectOfBleDevice(){
-        bleManager?.notifyCharacteristic(false,UUID.fromString("74ab521e-060d-26df-aa64-cf4df2d0d641"))
+        if (IS_NOTIFY_TYPE_OF_CHARACTERISTIC) {
+            bleManager?.notifyCharacteristic(false,UUID.fromString("74ab521e-060d-26df-aa64-cf4df2d0d641"))
+        }else {
+            bleManager?.indicateCharacteristic(false,UUID.fromString("74ab521e-060d-26df-aa64-cf4df2d0d641"))
+        }
+
 
         bleManager?.disconnect()?.enqueue()
         //bleDevice = null
@@ -971,8 +1091,12 @@ class EndlessService : Service() {
             toastShow("UNBONDING.. [ ${bleDevice?.name} ]",Color.BLUE,this@EndlessService)
             Log.i("uuu","uuu unBondDevice")             //74ab521e-060d-26df-aa64-cf4df2d0d643
             GlobalScope.launch {
-
-                bleManager?.notifyCharacteristic(false,UUID.fromString("74ab521e-060d-26df-aa64-cf4df2d0d641"))
+                if (IS_NOTIFY_TYPE_OF_CHARACTERISTIC) {
+                    bleManager?.notifyCharacteristic(false,UUID.fromString("74ab521e-060d-26df-aa64-cf4df2d0d641"))
+                }else {
+                    bleManager?.indicateCharacteristic(false,UUID.fromString("74ab521e-060d-26df-aa64-cf4df2d0d641"))
+                }
+                //bleManager?.notifyCharacteristic(false,UUID.fromString("74ab521e-060d-26df-aa64-cf4df2d0d641"))
                 delay(3000)
                 bleDevice?.removeBond()
                 delay(2500)

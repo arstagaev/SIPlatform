@@ -8,6 +8,7 @@ import android.util.Log
 import com.avtelma.backblelogger.logrecorder.tools.Converters
 import no.nordicsemi.android.ble.BleManager
 import no.nordicsemi.android.ble.BleManagerCallbacks
+import no.nordicsemi.android.ble.data.Data
 import no.nordicsemi.android.log.LogContract
 import no.nordicsemi.android.log.LogSession
 import no.nordicsemi.android.log.Logger
@@ -46,6 +47,30 @@ open class BaseNordicBleManager(context: Context) :
             mCallbacks.updateServices(serviceList)
 
             return true
+        }
+    }
+
+    public fun indicateCharacteristic(isChecked: Boolean, uuid: UUID) {
+        val characteristic = characteristicMap[uuid]
+        //Refreshing of new data: ->
+        setIndicationCallback(characteristic).with { device, data ->
+            Log.d("cccallback", "notifyCharacteristic -> $uuid")
+            mCallbacks.onIndicated(
+                uuid,
+                data.value
+            )
+        }
+        //checker is ON or OFF
+        if (isChecked) {
+            enableIndications(characteristic)
+                .done { device ->           mCallbacks.onIndicated(uuid, null, "set up")  }
+                .fail { device, status ->  mCallbacks .onIndicated(uuid,  null, "fail")   }
+                .enqueue()
+        } else {
+            disableIndications(characteristic)
+                .done { device ->          mCallbacks.onIndicated(uuid,  null, "end")     }
+                .fail { device, status ->  mCallbacks.onIndicated(uuid,  null, "fail")    }
+                .enqueue()
         }
     }
 
@@ -99,6 +124,7 @@ open class BaseNordicBleManager(context: Context) :
         fun updateServices(serviceList: MutableList<BluetoothGattService>)
         fun onRead(uuid: UUID, bytes: ByteArray?, msg: String? = null)
         fun onWrite(uuid: UUID, isSuccess: Boolean)
+        fun onIndicated(uuid: UUID, bytes: ByteArray?, msg:String? = null) // acknowledgment notifycations
         fun onNotified(uuid: UUID, bytes: ByteArray?, msg:String? = null)
     }
 }

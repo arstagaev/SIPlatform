@@ -1,5 +1,6 @@
 package com.avtelma.siplatform.aport
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Build
@@ -8,18 +9,24 @@ import com.avtelma.backblelogger.AVTSIPlatform_EntryPoint
 import com.avtelma.backblelogger.enum.Actions
 import com.avtelma.backblelogger.enum.ConnectingStyle
 import com.avtelma.backblelogger.logrecorder.service.EndlessService
+import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants.Companion.ACTION_NOW
 import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants.Companion.CONNECTING_STYLE
 import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants.Companion.CURRENT_STATE_OF_SERVICE
+import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants.Companion.SUPER_BLE_DEVICE
 import com.avtelma.backblelogger.logrecorder.tools.log
 import com.avtelma.backblelogger.rawparser.service_parsing_events.ParsingActions
 import com.avtelma.backblelogger.rawparser.service_parsing_events.ParsingEventService
 import com.avtelma.siplatform.BIG_SHARED_STR
+import com.avtelma.siplatform.timerOfStatus
+import com.avtelma.siplatform.whatCommandsWeHave
 
 class Router {
 
+    @SuppressLint("MissingPermission")
     fun inner(command: String, ctx : Context){
         when(command) {
-            "info" ,"1"->  { BIG_SHARED_STR.value = ">>>AVTelma Platform Tester<<<" }
+            "status" ,"0","s"->  { BIG_SHARED_STR.value += "\n>> state:${CURRENT_STATE_OF_SERVICE.name},act:${ACTION_NOW.name},style:${CONNECTING_STYLE.name},aim:${SUPER_BLE_DEVICE?.name ?: "null"}" }
+            "info" ,"1"->  { whatCommandsWeHave() }
             "clear" ,"2","c"-> { BIG_SHARED_STR.value = "" }
             "startr" ,"3"-> {
                 AVTSIPlatform_EntryPoint.Builder.connStl(ConnectingStyle.AUTO_BY_BOND).build()
@@ -40,6 +47,14 @@ class Router {
             "startpt","9" ->  { launchCommandInService_RAWPARSER(ParsingActions.TARGET_PARSING,ctx)  }
             "stopp","10" ->  {  launchCommandInService_RAWPARSER(ParsingActions.STOP,ctx) }
             "log","11" -> { BIG_SHARED_STR.value = "[${CURRENT_STATE_OF_SERVICE.name}, ${CONNECTING_STYLE.name}]"  }
+            "timer","12" -> {
+                BIG_SHARED_STR.value += "\nrefresher of status started"
+                timerOfStatus.start()
+
+            }
+            "13" -> {
+                timerOfStatus.cancel()
+            }
             "unbond" -> { launchCommandInService(Actions.UNBOND, ctx)  }
             else -> {BIG_SHARED_STR.value += "\ndon`t know command :(" }
         }

@@ -102,8 +102,8 @@ class MainActivity : ComponentActivity() {
 
     var timer : CountDownTimer = object : CountDownTimer(1000000,1000){
         override fun onTick(p0: Long) {
-            Timber.i("zzz !!!")
-            Timber.i("zzz ${LIST_OF_FOUND_DEVICES?.joinToString()}")
+            //Timber.i("zzz !!!")
+            //Timber.i("zzz ${LIST_OF_FOUND_DEVICES?.joinToString()}")
             if (VariablesAndConstants.LIST_OF_FOUND_DEVICES != null ){
 
                 Timber.i("zzz ${VariablesAndConstants.LIST_OF_FOUND_DEVICES?.toString()}  name super: ${SUPER_BLE_DEVICE?.name}")
@@ -129,9 +129,9 @@ class MainActivity : ComponentActivity() {
         //var foo : BluetoothDevice? = null
 
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            requestPermission(ACCESS_BACKGROUND_LOCATION,3)
-        }
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+//            requestPermission(ACCESS_BACKGROUND_LOCATION,3)
+//        }
 
         Timber.i("zzz","zzz ${getFilesDir()} or ${getCacheDir()}   // ${getExternalCacheDir()}")
 
@@ -156,16 +156,16 @@ class MainActivity : ComponentActivity() {
 
 
 
-        runOnUiThread {
-            requestPermission(
-                Manifest.permission.BLUETOOTH_SCAN,
-                1
-            )
-            requestPermission(
-                Manifest.permission.BLUETOOTH_CONNECT,
-                1
-            )
-        }
+//        runOnUiThread {
+//            requestPermission(
+//                Manifest.permission.BLUETOOTH_SCAN,
+//                1
+//            )
+//            requestPermission(
+//                Manifest.permission.BLUETOOTH_CONNECT,
+//                1
+//            )
+//        }
 
 
         setContent {
@@ -204,8 +204,8 @@ class MainActivity : ComponentActivity() {
                             finish()
                             //commonDocumentDirPath("Rock")
 
-                        }, modifier = Modifier.padding(MASTER_PADDING)) {
-                            Text(text = "To new ACTIVITY",color = Color.Blue)
+                        }, modifier = Modifier.fillMaxWidth().height(400.dp) .padding(MASTER_PADDING)) {
+                            Text(text = "Go to TERMINAL",color = Color.Blue)
                         }
 
                         Button(onClick = {
