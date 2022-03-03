@@ -118,26 +118,27 @@ class MainActivity2 : ComponentActivity() {
 //                                .weight(1f)
 //                                .background(Color.Red)
 //                        )
-
                     }
-
                 }
             }
         }
     }
 }
+var TMR = 0
 @SuppressLint("MissingPermission")
 var timerOfStatus = object : CountDownTimer(1000000,1000) {
-
     override fun onTick(p0: Long) {
-        BIG_SHARED_STR.value += "\n>> state:${VariablesAndConstants.CURRENT_STATE_OF_SERVICE.name},act:${VariablesAndConstants.ACTION_NOW.name},style:${VariablesAndConstants.CONNECTING_STYLE.name},aim:${VariablesAndConstants.SUPER_BLE_DEVICE?.name ?: "null"}"
+        BIG_SHARED_STR.value += "\n>> state:${VariablesAndConstants.CURRENT_STATE_OF_SERVICE.name},act:${VariablesAndConstants.ACTION_NOW.name},style:${VariablesAndConstants.CONNECTING_STYLE.name}," +
+                "aim:${VariablesAndConstants.SUPER_BLE_DEVICE?.name ?: "null"}[${VariablesAndConstants.SUPER_BLE_DEVICE?.address ?: ""}]," +
+                "isNotify:${VariablesAndConstants.IS_NOTIFY_TYPE_OF_CHARACTERISTIC}"+
+                ",t:${TMR++}"
 
     }
 
     override fun onFinish() {
         BIG_SHARED_STR.value += "\nrefresher of status stopped"
+        TMR = 0
     }
-
 }
 
 fun whatCommandsWeHave() {

@@ -60,7 +60,8 @@ open class BaseNordicBleManager(context: Context) :
                 data.value
             )
         }
-        //checker is ON or OFF
+
+        //callback checker is ON or OFF
         if (isChecked) {
             enableIndications(characteristic)
                 .done { device ->           mCallbacks.onIndicated(uuid, null, "set up")  }

@@ -63,6 +63,8 @@ import com.avtelma.backblelogger.rawparser.service_parsing_events.ParsingActions
 import com.avtelma.backblelogger.rawparser.service_parsing_events.ParsingEventService
 import com.avtelma.backblelogger.toast_manage.tost
 import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import no.nordicsemi.android.support.v18.scanner.*
 import java.lang.Compiler.enable
 import java.util.*
@@ -143,10 +145,10 @@ class EndlessService : Service() {
                     unSubscribe()
 
                     when(intent.extras?.getInt("ble_conn")) { // Command to Service
-                        1 -> { connectTo(CHOSEN_BLE_DEVICE!!) }
+                        1 -> { //connectTo(CHOSEN_BLE_DEVICE!!)
+                        }
                         0 -> { disconnectOfBleDevice()        }
                     }
-
                 }
                 Actions.SUBS_AND_CONNECTED.name ->{
                     // aim is make rec again
@@ -158,7 +160,8 @@ class EndlessService : Service() {
 
                     Log.i("zzz","zzz ${intent.extras?.getInt("CS")}")
                     when(intent.extras?.getInt("CS")) { // Command to Service
-                        1 -> { connectTo(CHOSEN_BLE_DEVICE!!)  }
+                        1 -> { //connectTo(CHOSEN_BLE_DEVICE!!)
+                        }
                         6 -> { startScan() }
                         7 -> { stopScan()  }
                         8 -> { unBondDevice()}
@@ -657,6 +660,8 @@ class EndlessService : Service() {
             delay(STARTUP_DELAY_OF_LOOPER ?: 10000)
             while (isServiceStarted) {
                 launch(Dispatchers.Main) {
+//                    val mutex = Mutex()
+//                    mutex.withLock {
                     /**
                      * Choose something one
                      */
@@ -675,7 +680,7 @@ class EndlessService : Service() {
                                 || CURRENT_STATE_OF_SERVICE == CurrentStateOfService.LOSS_CONNECTION_AND_WAIT_NEW) {
                                 time = 0
 
-                                if (SUPER_BLE_DEVICE != null) {
+                                if (SUPER_BLE_DEVICE != null && CONNECTING_STYLE == ConnectingStyle.MANUAL) {
 
                                     if (CONNECTING_STYLE == ConnectingStyle.MANUAL) {
                                         tost("[Manual mode] Try connect: ${SUPER_BLE_DEVICE?.name?: "[name is null]"}",this@EndlessService,true,true)
@@ -694,18 +699,20 @@ class EndlessService : Service() {
                                     // auto mode, here we find we
                                     // bonding mode
 
-
                                     for (bt in alreadyBondedDevices) {
                                         if (bt.name.toString().contains("itelma",true) == true) {
                                             Log.i("cccc",">>> again connect ")
                                             tost("[AUTO-BOND mode] Try connect: ${SUPER_BLE_DEVICE?.name?: "[error dev is null]"}",this@EndlessService,false,true)
 
                                             connectTo(bt)
-                                            delay(7000)
+                                            Log.i("cccc","close connect<<<<< ")
+                                            delay(10000)
 
                                         }
                                     }
-                                    delay(5000)
+
+                                    //delay(30000)
+
 
                                     refreshNotification("Can`t connect, state: ${CURRENT_STATE_OF_SERVICE.name}",true)
                                     Log.d("ccc","List of bonded devices "+noFilteredDevices.toString())
@@ -788,17 +795,15 @@ class EndlessService : Service() {
                         Actions.TARGET_CONNECT -> {
                             Log.i("ttt","Actions.TARGET_CONNECT , waiting for connect: ${CHOSEN_BLE_DEVICE?.address} bondState:${CHOSEN_BLE_DEVICE?.bondState}")
                         }
-
                     }
                 }
+                //}
                 ///////////////////////////////////////////////////////////////////
                 if (CURRENT_STATE_OF_SERVICE == CurrentStateOfService.RECORDING) {
                     delay(20000)
                 }else {
-                    delay(4000)
+                    delay(20000)
                 }
-
-
                 Log.w("sss","<><><><><><><> LOAD SERVICE AGAIN <><><><><>")
             }
             log(">>>>>>>>>>>>>>>>>>End of the loop for the service<<<<<<<<<<<<<<<<<<<<<<<<<<<")

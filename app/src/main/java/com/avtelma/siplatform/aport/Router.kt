@@ -12,6 +12,7 @@ import com.avtelma.backblelogger.logrecorder.service.EndlessService
 import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants.Companion.ACTION_NOW
 import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants.Companion.CONNECTING_STYLE
 import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants.Companion.CURRENT_STATE_OF_SERVICE
+import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants.Companion.IS_NOTIFY_TYPE_OF_CHARACTERISTIC
 import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants.Companion.SUPER_BLE_DEVICE
 import com.avtelma.backblelogger.logrecorder.tools.log
 import com.avtelma.backblelogger.rawparser.service_parsing_events.ParsingActions
@@ -25,7 +26,7 @@ class Router {
     @SuppressLint("MissingPermission")
     fun inner(command: String, ctx : Context){
         when(command) {
-            "status" ,"0","s"->  { BIG_SHARED_STR.value += "\n>> state:${CURRENT_STATE_OF_SERVICE.name},act:${ACTION_NOW.name},style:${CONNECTING_STYLE.name},aim:${SUPER_BLE_DEVICE?.name ?: "null"}" }
+            "status" ,"0","s"->  { BIG_SHARED_STR.value += "\n>> state:${CURRENT_STATE_OF_SERVICE.name},act:${ACTION_NOW.name},style:${CONNECTING_STYLE.name},aim:${SUPER_BLE_DEVICE?.name ?: "null"},is notify:${IS_NOTIFY_TYPE_OF_CHARACTERISTIC}" }
             "info" ,"1"->  { whatCommandsWeHave() }
             "clear" ,"2","c"-> { BIG_SHARED_STR.value = "" }
             "startr" ,"3"-> {
@@ -56,6 +57,12 @@ class Router {
                 timerOfStatus.cancel()
             }
             "unbond" -> { launchCommandInService(Actions.UNBOND, ctx)  }
+            "123" -> {
+                BIG_SHARED_STR.value += "\nrefresher of status started"
+                timerOfStatus.start()
+                AVTSIPlatform_EntryPoint.Builder.connStl(ConnectingStyle.AUTO_BY_BOND).build()
+                launchCommandInService(Actions.START, ctx)
+            }
             else -> {BIG_SHARED_STR.value += "\ndon`t know command :(" }
         }
     }
