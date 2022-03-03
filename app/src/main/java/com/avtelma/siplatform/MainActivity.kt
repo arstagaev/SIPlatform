@@ -137,12 +137,12 @@ class MainActivity : ComponentActivity() {
 
         Log.i("zzz","zzz222 ${getExternalFilesDir("")} or ${getExternalCacheDir()}")
 
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-//            Log.i("zzz","checkStoragePermissionApi30 ${checkStoragePermissionApi30(this)}")
-//            requestStoragePermissionApi30(this)
-//        }else {
-//            Log.i("zzz","checkStoragePermissionApi19 ${checkStoragePermissionApi19(this)}")
-//        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            Log.i("zzz","checkStoragePermissionApi30 ${checkStoragePermissionApi30(this)}")
+            requestStoragePermissionApi30(this)
+        }else {
+            Log.i("zzz","checkStoragePermissionApi19 ${checkStoragePermissionApi19(this)}")
+        }
         timer.start()
 //        try {
 //            appendText("wow.txt","777")

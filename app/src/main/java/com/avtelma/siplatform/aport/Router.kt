@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.util.Log
 import androidx.core.content.ContextCompat
 import com.avtelma.backblelogger.AVTSIPlatform_EntryPoint
 import com.avtelma.backblelogger.enum.Actions
@@ -17,9 +18,7 @@ import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants.Compani
 import com.avtelma.backblelogger.logrecorder.tools.log
 import com.avtelma.backblelogger.rawparser.service_parsing_events.ParsingActions
 import com.avtelma.backblelogger.rawparser.service_parsing_events.ParsingEventService
-import com.avtelma.siplatform.BIG_SHARED_STR
-import com.avtelma.siplatform.timerOfStatus
-import com.avtelma.siplatform.whatCommandsWeHave
+import com.avtelma.siplatform.*
 
 class Router {
 
@@ -62,6 +61,9 @@ class Router {
                 timerOfStatus.start()
                 AVTSIPlatform_EntryPoint.Builder.connStl(ConnectingStyle.AUTO_BY_BOND).build()
                 launchCommandInService(Actions.START, ctx)
+            }
+            "file" -> {
+
             }
             else -> {BIG_SHARED_STR.value += "\ndon`t know command :(" }
         }

@@ -72,7 +72,7 @@ class VariablesAndConstants {
          */
         const val DELAY_FOR_GET_HISTORY = 70000
         var MAKE_NOTIFY_DEBUG = false
-        var IS_NOTIFY_TYPE_OF_CHARACTERISTIC = false
+        var IS_NOTIFY_TYPE_OF_CHARACTERISTIC = true
         //var SETUP_AIM_BLE_DEVICE_NAME : String? = PreferenceMaestro.aimBLEDevice
         var WITH_CREATE_BOND = true
 

@@ -283,11 +283,11 @@ class EndlessService : Service() {
                }
 
            }
-            if (LIST_OF_FOUND_DEVICES.size > 0) {
+           if (LIST_OF_FOUND_DEVICES.size > 0) {
                 LIST_OF_FOUND_DEVICES.sortedBy { it.rssi }
                 CLOSEST_BLE_DEVICE = LIST_OF_FOUND_DEVICES[LIST_OF_FOUND_DEVICES.lastIndex].bluetoothDevice
                 CHOSEN_BLE_DEVICE = LIST_OF_FOUND_DEVICES[LIST_OF_FOUND_DEVICES.lastIndex].bluetoothDevice
-            }
+           }
 
 
            //LIST_OF_FOUND_DEVICES = results
@@ -376,7 +376,7 @@ class EndlessService : Service() {
                     IS_SUBSCRIBED = true
                     //SoundPlay().playx(this@EndlessService, WhatIMustSay.SUCCESS_SUBS)
                     SoundPlay().playx(this@EndlessService, WhatIMustSay.DING)
-                }else if (msg == "end" || msg == "fail") {
+                } else if (msg == "end" || msg == "fail") {
                     IS_SUBSCRIBED = false
                 }
 
@@ -422,7 +422,9 @@ class EndlessService : Service() {
 
         override fun onNotified(uuid: UUID, bytes: ByteArray?, msg: String?) {
             //Log.d("ccc","logy "+bytes)
-
+            if (!IS_NOTIFY_TYPE_OF_CHARACTERISTIC) {
+                return
+            }
             if (msg != null) {
                 Log.w("cccnnn"," cccnnn msg from notif:${msg}")
 
@@ -499,6 +501,7 @@ class EndlessService : Service() {
             toastShow("successful connected ${device.name}",Color.GREEN,this@EndlessService)
 
             generateNameOfAllLogPerSession()
+            IS_NOTIFY_TYPE_OF_CHARACTERISTIC = true
 
         }
 
