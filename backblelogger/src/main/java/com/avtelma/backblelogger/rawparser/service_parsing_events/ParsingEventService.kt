@@ -27,10 +27,13 @@ import com.avtelma.backblelogger.rawparser.tools.toastShow
 import com.avtelma.backblelogger.rawparser.tools.VariablesAndConstRawParser.PROGRESS_MAX
 import com.avtelma.backblelogger.rawparser.tools.VariablesAndConstRawParser.PROGRESS_NOTIF
 import com.avtelma.backblelogger.rawparser.tools.VariablesAndConstRawParser.TARGET_NAME_FILE_IMU_and_GPS
+import com.avtelma.backblelogger.rawparser.tools.VariablesAndConstRawParser.TIME_OF_HAPPENED_EVENT
 import com.avtelma.backblelogger.rawparser.tools.VariablesAndConstRawParser.currentStateOfParsing
 import com.avtelma.backblelogger.rawparser.tools.VariablesAndConstRawParser.root1_raw
 import com.avtelma.backblelogger.rawparser.tools.VariablesAndConstRawParser.root2_preproc
 import com.avtelma.backblelogger.rawparser.tools.VariablesAndConstRawParser.styleOfParsing
+import com.avtelma.backblelogger.rawparser.tools.currentTimeDefiner
+import com.avtelma.backblelogger.rawparser.tools.timeStrToLong
 //import com.avtelma.backgroundparser.core.algorithm.*
 import kotlinx.coroutines.*
 import java.io.*
@@ -315,7 +318,7 @@ class ParsingEventService : Service() {
         PROGRESS_MAX = needToParse.size
         PROGRESS_NOTIF = 0
         Toast.makeText(applicationContext,"Need to parse ${needToParse.size} trips",Toast.LENGTH_LONG).show()
-
+        // main reader/parser
         CoroutineScope(Dispatchers.IO).launch {
             for (i in needToParse) {
                 last_LtLn = LtLn(0.0, 0.0)
@@ -343,8 +346,9 @@ class ParsingEventService : Service() {
         }
     }
 
-    var CURRENT_POS = 1
+
     suspend fun parseTargetFile(file: File) = withContext(Dispatchers.IO){
+        var counterOfLines = 1
         var isExist = file.exists()
         Log.i("go for PARSE . is Exist: ${isExist}", " " + file.name)
         if (!isExist) {
@@ -369,13 +373,15 @@ class ParsingEventService : Service() {
 
 
 
-        var NumberOfLine = 1
+        var NUMBER_OF_LINES_GLOBAL = 0L
+        var STARTING_TIMESTAMP = timeStrToLong(file.name)
+
         try {
             // read lines in txt by Bufferreader
 
             val br = BufferedReader(FileReader(file))
             var line: String?
-
+            /** Looper of parsing file */
             while (br.readLine().also { line = it } != null) {
                 //Log.i("vvv","l "+line)
                 if (line != "" || line != " ") {
@@ -387,6 +393,7 @@ class ParsingEventService : Service() {
                     // we create pool of xyz array in 500 elements  // 2907_212603_imu_gps.txt has been error
                     if (items != null) {
 
+
                         arrayOfXYZ.add(
                             XYZ(
                                 items.get(0).toDouble(),
@@ -394,11 +401,11 @@ class ParsingEventService : Service() {
                                 items.get(2).toDouble()
                             )
                         )
-
                     }
 
                     if (arrayOfXYZ.size == 25) {
-
+                        NUMBER_OF_LINES_GLOBAL++
+                        TIME_OF_HAPPENED_EVENT = currentTimeDefiner(NUMBER_OF_LINES_GLOBAL,STARTING_TIMESTAMP)
                         /**
                          * Convert 25 lines of raw-data to 1 event line
                          */
@@ -416,7 +423,7 @@ class ParsingEventService : Service() {
                         Log.i("ccc","ccc eventX ${preparedEventLine.toString()}")
                         findDurationAndScoreOfEvents( preparedEventLine, ltLn.lat,ltLn.lon ) // <<<
 
-                        CURRENT_POS++
+                        counterOfLines++
                         if (styleOfParsing == STYLE_OF_PARSING.TARGET_PARSING) {
                             PROGRESS_NOTIF++
                         }
@@ -425,7 +432,7 @@ class ParsingEventService : Service() {
                         arrayOfXYZ.removeAt(0)
 
                     }
-                    NumberOfLine++
+
                 }
             }
             br.close()

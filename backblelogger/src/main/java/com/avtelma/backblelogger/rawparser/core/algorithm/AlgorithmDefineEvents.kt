@@ -14,9 +14,11 @@ import VectorNorm_P
 import XYZ
 import android.util.Log
 import com.avtelma.backblelogger.AVTSIPlatform_EntryPoint.Builder.is_SCORING
+import com.avtelma.backblelogger.globaltools.roundTo2decimals
 import com.avtelma.backblelogger.rawparser.service_parsing_events.models.LtLn
 import com.avtelma.backblelogger.rawparser.service_parsing_events.checkZeroOrNot
 import com.avtelma.backblelogger.rawparser.service_parsing_events.generateNameOfLogEvents
+import com.avtelma.backblelogger.rawparser.tools.VariablesAndConstRawParser
 import com.avtelma.backblelogger.rawparser.tools.VariablesAndConstRawParser.GENERATE_SPECIAL_ID_FOR_EVENTS_2
 import com.avtelma.backblelogger.rawparser.tools.VariablesAndConstRawParser.THRESHOLD_GAS_BREAK_DURATION
 import com.avtelma.backblelogger.rawparser.tools.VariablesAndConstRawParser.THRESHOLD_JUMP_DURATION
@@ -411,15 +413,16 @@ fun findDurationAndScoreOfEvents (eventLine: EventLine, lat: Double, lon : Doubl
 //            PowerCalc(EvrawForw,8,35),
 //            PowerCalc(EvrawSide,7,40)
 //        )
-        // write to file
+        /** write to file */
         writePreProcLog(EventPreFinal(
-            last_stop_1, last_gas_break_2, last_turn_3, last_jump_4,eventLine.condition_debug,
-            TIME -maxDuration,
-            event.stop_duration, event.gas_break_duration, event.turn_duration, event.jump_duration,
-            last_LtLn!!,
-            PowerCalc(EvrawForw,2.0,12.0),
-            PowerCalc(EvrawForw,2.0,12.0),
-            PowerCalc(EvrawSide,3.0,12.0)
+            last_stop_1, last_gas_break_2, last_turn_3, last_jump_4, // events
+            eventLine.condition_debug, // condition stage
+            maxDuration, // now is just duration, previously has been like start time of event
+            event.stop_duration, event.gas_break_duration, event.turn_duration, event.jump_duration, // events duration
+            last_LtLn!!, // event coordinate
+            PowerCalc(EvrawForw,2.0,12.0), // score by forward acceleration vector
+            PowerCalc(EvrawForw,2.0,12.0), // score by forward acceleration vector
+            PowerCalc(EvrawSide,3.0,12.0)  // score by side acceleration vector
         ))
         // Clear duration`s, reduce to 1, preparing to new event
         event.stop_duration      = 1
@@ -598,9 +601,9 @@ fun writePreProcLog(s: EventPreFinal) {
         val outputStreamWriter = OutputStreamWriter(fileOutputStream)
         // check we have logs with score or not
         if (is_SCORING!!){
-            outputStreamWriter.appendLine("${s.stop_1},${s.gas_break_2},${s.turn_3},${s.jump_4} ${s.condition_debug} ${s.time} ${s.stop_duration},${s.gas_break_duration},${s.turn_duration},${s.jump_duration} ${checkZeroOrNot(s.ltln.lat)},${checkZeroOrNot(s.ltln.lon)} ${s.Gas},${s.Break},${s.Turn}")
+            outputStreamWriter.appendLine("${s.stop_1},${s.gas_break_2},${s.turn_3},${s.jump_4} ${s.condition_debug} ${s.time} ${s.stop_duration},${s.gas_break_duration},${s.turn_duration},${s.jump_duration} ${checkZeroOrNot(s.ltln.lat)},${checkZeroOrNot(s.ltln.lon)} ${roundTo2decimals(s.Gas.toFloat())},${roundTo2decimals(s.Break.toFloat())},${roundTo2decimals(s.Turn.toFloat())} ${VariablesAndConstRawParser.TIME_OF_HAPPENED_EVENT}")
         } else {
-            outputStreamWriter.appendLine("${s.stop_1},${s.gas_break_2},${s.turn_3},${s.jump_4} ${s.condition_debug} ${s.time} ${s.stop_duration},${s.gas_break_duration},${s.turn_duration},${s.jump_duration} ${checkZeroOrNot(s.ltln.lat)},${checkZeroOrNot(s.ltln.lon)}")
+            outputStreamWriter.appendLine("${s.stop_1},${s.gas_break_2},${s.turn_3},${s.jump_4} ${s.condition_debug} ${s.time} ${s.stop_duration},${s.gas_break_duration},${s.turn_duration},${s.jump_duration} ${checkZeroOrNot(s.ltln.lat)},${checkZeroOrNot(s.ltln.lon)} ${VariablesAndConstRawParser.TIME_OF_HAPPENED_EVENT}")
         }
 
         outputStreamWriter.close()

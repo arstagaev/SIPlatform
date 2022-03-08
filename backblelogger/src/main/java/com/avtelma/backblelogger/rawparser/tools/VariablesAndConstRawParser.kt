@@ -40,6 +40,7 @@ object VariablesAndConstRawParser {
     var GENERATE_SPECIAL_ID_FOR_EVENTS_2 = generateNameOfLogEvents()
     var GENERATE_SPECIAL_ID_FOR_PREPARED_LOG = generateNameOfPreparedLog()
     var GENERATE_ALL_TRIP = generateNameOfAllTripGpsLog()
+    var TIME_OF_HAPPENED_EVENT = ""
 
     // for notifications
     var PROGRESS_NOTIF = 0
