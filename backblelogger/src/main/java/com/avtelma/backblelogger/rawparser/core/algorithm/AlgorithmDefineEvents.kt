@@ -381,6 +381,13 @@ fun findDurationAndScoreOfEvents (eventLine: EventLine, lat: Double, lon : Doubl
     if (needPublishLog) {
         if (notEnoughLong) // return if not enough return
             return
+
+        if (last_stop_1 != eventLine.stop_1 || last_gas_break_2 != eventLine.gas_break_2 || last_turn_3 != eventLine.turn_3 || last_jump_4 != eventLine.jump_4) {
+            Log.w("algo","algo I see difference")
+        }else {
+            Log.w("algo","algo I don`t see difference")
+            return
+        }
         /**
          * Catch max duration of single event from 4 types of event
          */

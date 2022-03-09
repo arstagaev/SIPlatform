@@ -4,10 +4,10 @@ import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
-fun currentTimeDefiner(lines : Long, startTimestamp : Long) : String {
+fun currentTimeDefiner(startTimestamp : Long, lines : Long ) : String {
     val sdf = java.text.SimpleDateFormat("HH:mm:ss_dd/MM/yyyy")
-    sdf.timeZone = TimeZone.getDefault()  //.getTimeZone("GMT+3:00")
-    var str : String = sdf.format(java.util.Date(startTimestamp+lines))
+    sdf.timeZone = TimeZone.getDefault()      //.getTimeZone("GMT+3:00")
+    var str : String = sdf.format(Date(startTimestamp*1000L+lines*1000L))
     return str
 }
 
@@ -17,6 +17,6 @@ fun timeStrToLong(fileName: String) : Long {
     //                                            0303_152900
     var date: Date = dateFormat.parse("${fileName.substring(5,7)}:${fileName.substring(7,9)}:${fileName.substring(9,11)} ${fileName.take(2)}/${fileName.substring(2,4)}/2021")
     var time_L: Long = date.getTime()
-    return time_L
+    return time_L/1000L
 }
 

@@ -389,6 +389,8 @@ class ParsingEventService : Service() {
                     val items = line?.split(";"," ")?.toTypedArray()
                     //Log.i("vvv","leght "+items?.get(2).toString()+"  "+items?.get(1).toString())
 
+                    NUMBER_OF_LINES_GLOBAL++
+
                     //if (NumberOfLine >=25) {
                     // we create pool of xyz array in 500 elements  // 2907_212603_imu_gps.txt has been error
                     if (items != null) {
@@ -404,9 +406,8 @@ class ParsingEventService : Service() {
                     }
 
                     if (arrayOfXYZ.size == 25) {
-                        NUMBER_OF_LINES_GLOBAL++
-                        TIME_OF_HAPPENED_EVENT = currentTimeDefiner(NUMBER_OF_LINES_GLOBAL,STARTING_TIMESTAMP)
-                        /**
+
+                         /**
                          * Convert 25 lines of raw-data to 1 event line
                          */
                         //Log.i("aloradance","stromae ${arrayOfXYZ.joinToString()}")
@@ -432,6 +433,8 @@ class ParsingEventService : Service() {
                         arrayOfXYZ.removeAt(0)
 
                     }
+                    TIME_OF_HAPPENED_EVENT = currentTimeDefiner(NUMBER_OF_LINES_GLOBAL/25L,
+                        STARTING_TIMESTAMP)
 
                 }
             }
