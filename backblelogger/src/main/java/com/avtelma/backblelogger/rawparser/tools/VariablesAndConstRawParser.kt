@@ -1,6 +1,7 @@
 package com.avtelma.backblelogger.rawparser.tools
 
 import android.os.Environment
+import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants.Companion.NAME_OF_MAIN_FOLDER
 import com.avtelma.backblelogger.rawparser.service_parsing_events.enum.STATE_OF_PARSING
 import com.avtelma.backblelogger.rawparser.service_parsing_events.enum.STYLE_OF_PARSING
 import com.avtelma.backblelogger.rawparser.service_parsing_events.generateJustTimeStamp
@@ -15,9 +16,10 @@ object VariablesAndConstRawParser {
     var TIMESTAMP_FOR_LOG = generateJustTimeStamp()
 
     ////////////
-    val root1_raw     = File(Environment.getExternalStorageDirectory(), "ItelmaBLE_Background/RawData")
-    val root2_preproc = File(Environment.getExternalStorageDirectory(), "ItelmaBLE_Background/PreProcessing")
-    val root3_json    = File(Environment.getExternalStorageDirectory(), "ItelmaBLE_Background/Jsons")
+    var root1_raw     = File(Environment.getExternalStorageDirectory(), "${NAME_OF_MAIN_FOLDER}/RawData")
+    var root2_preproc = File(Environment.getExternalStorageDirectory(), "${NAME_OF_MAIN_FOLDER}/PreProcessing")
+    var root3_json    = File(Environment.getExternalStorageDirectory(), "${NAME_OF_MAIN_FOLDER}/Jsons")
+    var root4_demo    = File(Environment.getExternalStorageDirectory(), "${NAME_OF_MAIN_FOLDER}/Demo")
 
     //for define needed duration fixme i doubt when is second
     const val THRESHOLD_STOP_DURATION      = 75 // [seconds]

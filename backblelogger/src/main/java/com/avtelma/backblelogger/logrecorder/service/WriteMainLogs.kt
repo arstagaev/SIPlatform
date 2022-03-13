@@ -2,7 +2,7 @@ package com.avtelma.backblelogger.logrecorder.service
 
 import android.os.Environment
 import android.util.Log
-import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants.Companion.NAME_OF_FOLDER_LOGS
+import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants.Companion.NAME_OF_FOLDER_RAWLOGS
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -10,7 +10,7 @@ import java.io.OutputStreamWriter
 
 fun addLogsIMUandGPS(sFileName: String, sBody: String){
     try {
-        val root = File(Environment.getExternalStorageDirectory(), NAME_OF_FOLDER_LOGS)
+        val root = File(Environment.getExternalStorageDirectory(), NAME_OF_FOLDER_RAWLOGS)
         if (!root.exists()) {
             root.mkdirs()
         }
@@ -32,7 +32,7 @@ fun addLogsIMUandGPS(sFileName: String, sBody: String){
 }
 fun addLogsXYZ(sFileName: String, sBody: String){
     try {
-        val root = File(Environment.getExternalStorageDirectory(), NAME_OF_FOLDER_LOGS)
+        val root = File(Environment.getExternalStorageDirectory(), NAME_OF_FOLDER_RAWLOGS)
         if (!root.exists()) {
             root.mkdirs()
         }
@@ -55,7 +55,7 @@ fun addLogsXYZ(sFileName: String, sBody: String){
 
 fun addLogsRawData(sFileName: String, sBody: String){
     try {
-        val root = File(Environment.getExternalStorageDirectory(), NAME_OF_FOLDER_LOGS)
+        val root = File(Environment.getExternalStorageDirectory(), NAME_OF_FOLDER_RAWLOGS)
         if (!root.exists()) {
             root.mkdirs()
         }
@@ -78,7 +78,7 @@ fun addLogsRawData(sFileName: String, sBody: String){
 
 fun addLogsGPS(sFileName: String, sBody: String){
     try {
-        val root = File(Environment.getExternalStorageDirectory(), NAME_OF_FOLDER_LOGS)
+        val root = File(Environment.getExternalStorageDirectory(), NAME_OF_FOLDER_RAWLOGS)
         if (!root.exists()) {
             root.mkdirs()
         }

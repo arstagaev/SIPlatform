@@ -39,15 +39,16 @@ class VariablesAndConstants {
         val BOND_FEATURE_IS = false // from preference maestro mb
 
         //////// Need for separating logs,for e.x. if we in parking now
-        var LAST_CAUGHT_NOTIFY_time = 0L        //[sec]
+        var LAST_CAUGHT_NOTIFY_time     = 0L        //[sec]
         const val DELAY_BEFORE_NEW_TRIP = 1200L //[sec] is 20 min
         //////// For writing logs in file
         var FIRST_BYTE = 2
         var SESSION_NAME_TIME_xyz =   "-"
         var SESSION_NAME_TIME_raw =   "-"
 
-        //var SESSION_NAME_TIME_gps = "-"
-        var NAME_OF_FOLDER_LOGS = "ItelmaBLE_Background/RawData"
+        //var SESSION_NAME_TIME_gps =   "-"
+        var NAME_OF_MAIN_FOLDER = "AVTelma"
+        var NAME_OF_FOLDER_RAWLOGS = "${NAME_OF_MAIN_FOLDER}/RawData"
 
         var TIMESTAMP_FOR_LOG = generateJustTimeStamp()
 
@@ -58,9 +59,9 @@ class VariablesAndConstants {
         var IS_SUBSCRIBED = false
 
         // PostProcessing
-//        val GENERATE_SPECIAL_ID_FOR_EVENTS_2 = generateNameOfLogEvents()
-//        val GENERATE_SPECIAL_ID_FOR_PREPARED_LOG = generateNameOfPreparedLog()
-//        val GENERATE_ALL_TRIP = generateNameOfAllTripGpsLog()
+        //val GENERATE_SPECIAL_ID_FOR_EVENTS_2 = generateNameOfLogEvents()
+        //val GENERATE_SPECIAL_ID_FOR_PREPARED_LOG = generateNameOfPreparedLog()
+        //val GENERATE_ALL_TRIP = generateNameOfAllTripGpsLog()
 
 
         // Storage of autos

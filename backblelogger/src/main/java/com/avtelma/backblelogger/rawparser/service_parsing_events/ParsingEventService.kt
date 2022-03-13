@@ -16,6 +16,7 @@ import com.avtelma.backblelogger.AVTSIPlatform_EntryPoint.Builder.RECORD_ACTIVIT
 import com.avtelma.backblelogger.AVTSIPlatform_EntryPoint.Builder.is_ENABLE_DELETE_GARBAGE_LOGS
 import com.avtelma.backblelogger.R
 import com.avtelma.backblelogger.broadcastreceivers.CloseServiceReceiver_RawParser
+import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants.Companion.NAME_OF_MAIN_FOLDER
 //import com.avtelma.backblelogger.broadcastreceivers.CloseServiceReceiver
 import com.avtelma.backblelogger.rawparser.core.algorithm.*
 
@@ -252,7 +253,7 @@ class ParsingEventService : Service() {
 
     fun appendText(sFileName: String, sBody: String){
         try {
-            val root = File(Environment.getExternalStorageDirectory(), "ItelmaBLE_Background/Jsons")
+            val root = File(Environment.getExternalStorageDirectory(), "${NAME_OF_MAIN_FOLDER}/Jsons")
             if (!root.exists()) {
                 root.mkdirs()
             }
