@@ -28,6 +28,7 @@ class AVTSIPlatform_EntryPoint(
         var RECORD_ACTIVITY_FOR_RAWPARSER : Class<*>?        = null
         var STARTUP_DELAY_OF_LOOPER       : Long?            = null
         var SEND_TO_UNBOND                : String?          = null
+        var CONNECTION_DELAY              : Long             = 6000 // ms
 
         fun setCarTabletParameters   (carlicense : String)   = apply { CAR_LICENSE_SIGN_TAG_ADDRESS = carlicense }
         fun realtimeChart   (isEnableChart: Boolean)         = apply { is_ENABLE_REALTIME_CHART = isEnableChart }

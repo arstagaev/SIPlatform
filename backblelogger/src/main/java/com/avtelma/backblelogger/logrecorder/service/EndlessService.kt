@@ -26,6 +26,7 @@ import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.avtelma.backblelogger.AVTSIPlatform_EntryPoint.Builder.CONNECTION_DELAY
 import com.avtelma.backblelogger.AVTSIPlatform_EntryPoint.Builder.RECORD_ACTIVITY
 import com.avtelma.backblelogger.AVTSIPlatform_EntryPoint.Builder.SEND_TO_UNBOND
 import com.avtelma.backblelogger.AVTSIPlatform_EntryPoint.Builder.STARTUP_DELAY_OF_LOOPER
@@ -701,18 +702,28 @@ class EndlessService : Service() {
                                     Log.w("sss",">>>>>>>>  AUTOMATIC MODE filtered: ${alreadyBondedDevices.joinToString()}")
                                     // auto mode, here we find we
                                     // bonding mode
-
-                                    for (bt in alreadyBondedDevices) {
-                                        if (bt.name.toString().contains("itelma",true) == true) {
+                                    alreadyBondedDevices.map {
+                                        if (it.name.toString().contains("itelma",true) == true) {
                                             Log.i("cccc",">>> again connect ")
                                             tost("[AUTO-BOND mode] Try connect: ${SUPER_BLE_DEVICE?.name?: "[error dev is null]"}",this@EndlessService,false,true)
 
-                                            connectTo(bt)
+                                            connectTo(it)
                                             Log.i("cccc","close connect<<<<< ")
-                                            delay(10000)
+                                            delay(3000)
 
                                         }
                                     }
+//                                    for (bt in alreadyBondedDevices) {
+//                                        if (bt.name.toString().contains("itelma",true) == true) {
+//                                            Log.i("cccc",">>> again connect ")
+//                                            tost("[AUTO-BOND mode] Try connect: ${SUPER_BLE_DEVICE?.name?: "[error dev is null]"}",this@EndlessService,false,true)
+//
+//                                            connectTo(bt)
+//                                            Log.i("cccc","close connect<<<<< ")
+//                                            delay(10000)
+//
+//                                        }
+//                                    }
 
                                     //delay(30000)
 
@@ -767,10 +778,10 @@ class EndlessService : Service() {
                                 checkTypeOfCharacteristic()
                                 if( ACTION_NOW != Actions.UNBOND ) {
                                     INSPECTOR_SWITCHER_SCAN = 0
-                                    if (!IS_SUBSCRIBED) {
+                                    //if (!IS_SUBSCRIBED) {
                                         delay(700)
                                         subscribeToCharacteristic()
-                                    }
+                                    //}
                                     stopScan()
 
                                 } else {
@@ -996,7 +1007,7 @@ class EndlessService : Service() {
 
         Log.i("mmm","make conn ${bleDevice?.name}")
 
-        bleManager?.connect(bleDevice!!)
+        bleManager?.connect(bleDevice!!)?.timeout(CONNECTION_DELAY)
             ?.useAutoConnect(true)
             ?.enqueue()
 

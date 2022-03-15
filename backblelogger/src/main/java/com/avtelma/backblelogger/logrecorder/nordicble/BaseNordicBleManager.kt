@@ -6,9 +6,13 @@ import android.bluetooth.BluetoothGattService
 import android.content.Context
 import android.util.Log
 import com.avtelma.backblelogger.logrecorder.tools.Converters
+import com.avtelma.backblelogger.logrecorder.tools.Converters.Companion.bytesToHex
+import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants.Companion.CODE_INDICATE_DISABLED_1
+import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants.Companion.CODE_INDICATE_ENABLED_1
+import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants.Companion.CODE_NOTIFY_DISABLED_1
+import com.avtelma.backblelogger.logrecorder.tools.VariablesAndConstants.Companion.CODE_NOTIFY_ENABLED_1
 import no.nordicsemi.android.ble.BleManager
 import no.nordicsemi.android.ble.BleManagerCallbacks
-import no.nordicsemi.android.ble.data.Data
 import no.nordicsemi.android.log.LogContract
 import no.nordicsemi.android.log.LogSession
 import no.nordicsemi.android.log.Logger
@@ -50,8 +54,34 @@ open class BaseNordicBleManager(context: Context) :
         }
     }
 
-    public fun indicateCharacteristic(isChecked: Boolean, uuid: UUID) {
+    public fun indicateCharacteristic(requestToMakeEnable: Boolean, uuid: UUID) {
         val characteristic = characteristicMap[uuid]
+        var isALREADY_ENABLED = false
+
+        try {
+            Log.w("blechk",">>> blechk ${characteristic!!.descriptors.map {
+                if (it.value != null) {
+                    bytesToHex( it.value)
+
+                }else {
+                    it.value
+                }
+            } } //")
+            if (characteristic!!.descriptors.get(0).value == null || bytesToHex(characteristic!!.descriptors.get(0).value) == CODE_INDICATE_DISABLED_1) {
+                isALREADY_ENABLED = false
+            } else if (bytesToHex(characteristic!!.descriptors.get(0).value) == CODE_INDICATE_ENABLED_1) {
+                isALREADY_ENABLED = true
+            }
+
+        }catch (e: Exception) {}
+        if (requestToMakeEnable == isALREADY_ENABLED) {
+            Log.e("blechk","garbage request to enable notify<<<<<<<<<<<<<<<<<")
+            return
+        }
+
+        Log.w("blechk","blechk 2. ${characteristic!!.writeType} //")
+        Log.w("blechk","blechk 3. ${characteristic!!.properties} //")
+
         //Refreshing of new data: ->
         setIndicationCallback(characteristic).with { device, data ->
             Log.d("cccallback", "notifyCharacteristic -> $uuid")
@@ -62,7 +92,7 @@ open class BaseNordicBleManager(context: Context) :
         }
 
         //callback checker is ON or OFF
-        if (isChecked) {
+        if (requestToMakeEnable) {
             enableIndications(characteristic)
                 .done { device ->           mCallbacks.onIndicated(uuid, null, "set up")  }
                 .fail { device, status ->  mCallbacks .onIndicated(uuid,  null, "fail")   }
@@ -73,19 +103,73 @@ open class BaseNordicBleManager(context: Context) :
                 .fail { device, status ->  mCallbacks.onIndicated(uuid,  null, "fail")    }
                 .enqueue()
         }
+
+        try {
+            Log.w("blechk","blechk ${characteristic!!.descriptors.map {
+                if (it.value != null) {
+                    bytesToHex( it.value)
+                }else {
+                    it.value
+                }
+            } } <<<//")
+        }catch (e: Exception) {}
+        Log.w("blechk","blechk 2. ${characteristic!!.writeType} //")
+        Log.w("blechk","blechk 3. ${characteristic!!.properties} //")
+
     }
 
-    public fun notifyCharacteristic(isChecked: Boolean, uuid: UUID) {
+    override fun setGattCallbacks(callbacks: ConnectedLECallback) {
+        super.setGattCallbacks(callbacks)
+
+    }
+    public fun notifyCharacteristic(requestToMakeEnable: Boolean, uuid: UUID) {
         val characteristic = characteristicMap[uuid]
+        var isALREADY_ENABLED = false
 
         setNotificationCallback(characteristic).with { device, data ->
+
             Log.d("cccallback", "notifyCharacteristic -> $uuid")
             mCallbacks.onNotified(
                 uuid,
                 data.value
             )
         }
-        if (isChecked) {
+
+        try {
+            Log.w("blechk",">>> blechk ${characteristic!!.descriptors.map { 
+                if (it.value != null) {
+                    bytesToHex( it.value)
+                    
+                }else {
+                    it.value
+                }
+            } } //")
+            if (characteristic!!.descriptors.get(0).value == null || bytesToHex(characteristic!!.descriptors.get(0).value) == CODE_NOTIFY_DISABLED_1) {
+                isALREADY_ENABLED = false
+            } else if (bytesToHex(characteristic!!.descriptors.get(0).value) == CODE_NOTIFY_ENABLED_1) {
+                isALREADY_ENABLED = true
+            }
+
+        }catch (e: Exception) {}
+        if (requestToMakeEnable == isALREADY_ENABLED) {
+            Log.e("blechk","garbage request to enable notify<<<<<<<<<<<<<<<<<")
+            return
+        }
+
+        Log.w("blechk","blechk 2. ${characteristic!!.writeType} //")
+        Log.w("blechk","blechk 3. ${characteristic!!.properties} //")
+        //Log.w("blechk","blechk 4. ${characteristic.value.map { it.toString() }} //")
+//        isALREADY_ENABLED = characteristic!!.descriptors.map {
+//            if (it.value != null) {
+//
+//                bytesToHex( it.value)
+//            }else {
+//                false
+//            }
+//        }
+
+
+        if (requestToMakeEnable) {
             enableNotifications(characteristic)
                 .done { device ->           mCallbacks.onNotified(uuid, null, "set up")  }
                 .fail { device, status ->  mCallbacks.onNotified(uuid,  null, "fail")  }
@@ -96,6 +180,19 @@ open class BaseNordicBleManager(context: Context) :
                 .fail { device, status ->  mCallbacks.onNotified(uuid,  null, "fail")}
                 .enqueue()
         }
+        try {
+            Log.w("blechk","blechk ${characteristic!!.descriptors.map {
+                if (it.value != null) {
+                    bytesToHex( it.value)
+                }else {
+                    it.value
+                }
+            } } <<<//")
+        }catch (e: Exception) {}
+        Log.w("blechk","blechk 2. ${characteristic!!.writeType} //")
+        Log.w("blechk","blechk 3. ${characteristic!!.properties} //")
+
+
     }
 
     fun readCharacteristic(uuid: UUID) {

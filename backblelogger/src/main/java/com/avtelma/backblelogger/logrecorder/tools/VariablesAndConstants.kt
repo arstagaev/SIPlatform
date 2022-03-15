@@ -66,8 +66,14 @@ class VariablesAndConstants {
 
         // Storage of autos
         //var STORAGE_OF_AUTOS = ArrayList<AutoCardWithTablet>()
+        /**
+         *  PARSE CONSTANTS FOR NOTIFY/INDICATE CHARACTERISTICS
+         */
+        var CODE_NOTIFY_ENABLED_1  = "0100"
+        var CODE_NOTIFY_DISABLED_1 = "0000"
 
-
+        var CODE_INDICATE_ENABLED_1  = "0100"
+        var CODE_INDICATE_DISABLED_1 = "0000"
         /**
          *  DEBUG & MANUAL under hood manipulations
          */
