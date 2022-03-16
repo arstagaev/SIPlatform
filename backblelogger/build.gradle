@@ -81,7 +81,7 @@ afterEvaluate {
 
                 groupId = 'com.github.arstagaev'
                 artifactId = 'siplatform'
-                version = '2.0.741'
+                version = '2.0.742'
             }
         }
     }
