@@ -4,7 +4,7 @@ import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
-fun currentTimeDefiner(startTimestamp : Long, lines : Long ) : String {
+fun currentTimeDefiner(startTimestamp : Long, lines : Long ) : String { // start & current timestamp
     val sdf = java.text.SimpleDateFormat("HH:mm:ss_dd/MM/yyyy")
     sdf.timeZone = TimeZone.getDefault()      //.getTimeZone("GMT+3:00")
     var str : String = sdf.format(Date(startTimestamp*1000L+lines*1000L))

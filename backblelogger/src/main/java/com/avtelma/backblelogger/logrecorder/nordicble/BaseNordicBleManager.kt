@@ -57,7 +57,7 @@ open class BaseNordicBleManager(context: Context) :
     public fun indicateCharacteristic(requestToMakeEnable: Boolean, uuid: UUID) {
         val characteristic = characteristicMap[uuid]
         var isALREADY_ENABLED = false
-
+        Log.w("blechk","blechk -1. requestToMakeEnable:${requestToMakeEnable}  // Characteristic:${characteristic.toString() }")
         try {
             Log.w("blechk",">>> blechk ${characteristic!!.descriptors.map {
                 if (it.value != null) {
@@ -73,9 +73,11 @@ open class BaseNordicBleManager(context: Context) :
                 isALREADY_ENABLED = true
             }
 
-        }catch (e: Exception) {}
+        }catch (e: Exception) {
+            Log.e("blechk","ERROR: ${e.message}|e notify<<<<<<<<<<<<<<<<< request ${requestToMakeEnable}, already:${isALREADY_ENABLED}")
+        }
         if (requestToMakeEnable == isALREADY_ENABLED) {
-            Log.e("blechk","garbage request to enable notify<<<<<<<<<<<<<<<<<")
+            Log.e("blechk","garbage request to enable notify<<<<<<<<<<<<<<<<< request ${requestToMakeEnable}, already:${isALREADY_ENABLED}")
             return
         }
 
@@ -84,7 +86,7 @@ open class BaseNordicBleManager(context: Context) :
 
         //Refreshing of new data: ->
         setIndicationCallback(characteristic).with { device, data ->
-            Log.d("cccallback", "notifyCharacteristic -> $uuid")
+            Log.d("blechk cccallback", "blechk notifyCharacteristic -> $uuid")
             mCallbacks.onIndicated(
                 uuid,
                 data.value
@@ -94,14 +96,38 @@ open class BaseNordicBleManager(context: Context) :
         //callback checker is ON or OFF
         if (requestToMakeEnable) {
             enableIndications(characteristic)
-                .done { device ->           mCallbacks.onIndicated(uuid, null, "set up")  }
-                .fail { device, status ->  mCallbacks .onIndicated(uuid,  null, "fail")   }
+                .done { device ->           mCallbacks.onIndicated(uuid, null, "set up")
+                    Log.w("blechk ", "blechk enableIndications set up device->   ${device}")
+                }
+                .fail { device, status ->  mCallbacks .onIndicated(uuid,  null, "fail")
+                    Log.e("blechk ", "blechk disableIndications SETUP FAIL  status-> $status  ${device}")
+                }
                 .enqueue()
         } else {
+//            disableIndications(characteristic)
+//                .before { c -> c. }
+
             disableIndications(characteristic)
-                .done { device ->          mCallbacks.onIndicated(uuid,  null, "end")     }
-                .fail { device, status ->  mCallbacks.onIndicated(uuid,  null, "fail")    }
+                .done { device ->
+                    mCallbacks.onIndicated(uuid,  null, "end")
+                    Log.w("blechk ", "blechk disableIndications END device->   ${device}")
+                }
+                .fail { device, status ->
+                    mCallbacks.onIndicated(uuid,  null, "fail")
+                    Log.e("blechk ", "blechk disableIndications ENDFAIL  status-> $status  ${device}")
+                }
                 .enqueue()
+
+//            disableIndications(characteristic)
+//                .done { device ->
+//                    mCallbacks.onIndicated(uuid,  null, "end")
+//                    Log.w("blechk ", "blechk disableIndications END device->   ${device}")
+//                }
+//                .fail { device, status ->
+//                    mCallbacks.onIndicated(uuid,  null, "fail")
+//                    Log.e("blechk ", "blechk disableIndications ENDFAIL  status-> $status  ${device}")
+//                }
+//                .enqueue()
         }
 
         try {

@@ -72,14 +72,14 @@ class VariablesAndConstants {
         var CODE_NOTIFY_ENABLED_1  = "0100"
         var CODE_NOTIFY_DISABLED_1 = "0000"
 
-        var CODE_INDICATE_ENABLED_1  = "0100"
+        var CODE_INDICATE_ENABLED_1  = "0200"
         var CODE_INDICATE_DISABLED_1 = "0000"
         /**
          *  DEBUG & MANUAL under hood manipulations
          */
         const val DELAY_FOR_GET_HISTORY = 70000
         var MAKE_NOTIFY_DEBUG = false
-        var IS_NOTIFY_TYPE_OF_CHARACTERISTIC = true
+        var IS_NOTIFY_TYPE_OF_CHARACTERISTIC = false
         //var SETUP_AIM_BLE_DEVICE_NAME : String? = PreferenceMaestro.aimBLEDevice
         var WITH_CREATE_BOND = true
 
